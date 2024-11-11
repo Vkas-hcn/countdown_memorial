@@ -22,13 +22,12 @@ class _MainPageState extends State<MainPage> {
 
   final List<Widget> _pages = [
     Home(),
-    AddDate(),
+    const AddDate(type: 1),
     SettingPaper(),
   ];
 
   void _onItemTapped(int index) {
     if (_selectedIndex != index) {
-      print("object ==$_selectedIndex");
       setState(() {
         _selectedIndex = index;
       });
@@ -48,6 +47,7 @@ class _MainPageState extends State<MainPage> {
         return true;
       },
       child: Scaffold(
+        resizeToAvoidBottomInset: false, // 禁止键盘弹出时调整布局
         backgroundColor: Colors.white,
         body: Column(
           children: [
@@ -116,3 +116,4 @@ class _MainPageState extends State<MainPage> {
     );
   }
 }
+

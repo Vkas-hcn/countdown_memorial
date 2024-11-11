@@ -11,19 +11,20 @@ import 'bean/Event.dart';
 import 'bean/EventManager.dart';
 
 class AddDate extends StatelessWidget {
-
-  const AddDate({super.key});
+  final int type;
+  const AddDate({super.key, required this.type});
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      body: AddDateScreen(),
+    return  Scaffold(
+      body: AddDateScreen(type: type,),
     );
   }
 }
 
 class AddDateScreen extends StatefulWidget {
-  const AddDateScreen({super.key});
+  final int type;
+  const AddDateScreen({super.key, required this.type});
 
   @override
   _WelcomeScreenState createState() => _WelcomeScreenState();
@@ -125,6 +126,7 @@ class _WelcomeScreenState extends State<AddDateScreen> {
 
   @override
   Widget build(BuildContext context) {
+
     String formattedDate = selectedDate != null
         ? DateFormat('yyyy/MM/dd').format(selectedDate!)
         : 'No date selected';
@@ -141,6 +143,7 @@ class _WelcomeScreenState extends State<AddDateScreen> {
               mainAxisAlignment: MainAxisAlignment.start,
               mainAxisSize: MainAxisSize.max,
               children: [
+                if(widget.type==0)
                 Padding(
                   padding: EdgeInsets.only(top: 42, left: 20, right: 20),
                   child: Row(
@@ -540,61 +543,6 @@ class _WelcomeScreenState extends State<AddDateScreen> {
     );
   }
 
-  void _showBottomSheet() {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      isScrollControlled: true,
-      builder: (BuildContext context) {
-        return Container(
-          width: 351,
-          height: 312,
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(32),
-          ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: List.generate(AppUtils.getOptionsData().length, (index) {
-              return GestureDetector(
-                onTap: () {
-                  setState(() {
-                    repeat = index;
-                  });
-                  Navigator.pop(context);
-                },
-                child: Container(
-                  margin: const EdgeInsets.symmetric(vertical: 8.0),
-                  padding: const EdgeInsets.symmetric(
-                      vertical: 12.0, horizontal: 20),
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    color: repeat == index
-                        ? Color(0xFFF1F5F9)
-                        : Colors.transparent,
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Center(
-                    child: Text(
-                      AppUtils.getOptionsData()[index],
-                      style: TextStyle(
-                        color: repeat == index
-                            ? Color(0xFF1E293B)
-                            : Color(0xFF999999),
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
-                ),
-              );
-            }),
-          ),
-        );
-      },
-    );
-  }
-
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? pickedDate = await showDatePicker(
       context: context,
@@ -631,38 +579,6 @@ class _WelcomeScreenState extends State<AddDateScreen> {
     }
   }
 
-  Future<void> _selectDate2(BuildContext context) async {
-    final DateTime? pickedDate = await showDatePicker(
-      context: context,
-      initialDate: DateTime.now().add(const Duration(days: 1)),
-      firstDate: DateTime.now().add(const Duration(days: 1)),
-      lastDate: DateTime(2100),
-      builder: (BuildContext context, Widget? child) {
-        return Theme(
-          data: Theme.of(context).copyWith(
-            colorScheme: const ColorScheme.light(
-              primary: Colors.blue,
-              onPrimary: Colors.white,
-              onSurface: Colors.black,
-            ),
-            textButtonTheme: TextButtonThemeData(
-              style: TextButton.styleFrom(
-                foregroundColor: Colors.blue,
-              ),
-            ),
-          ),
-          child: child!,
-        );
-      },
-    );
-
-    if (pickedDate!= null && pickedDate!= selectedDate) {
-      setState(() {
-        selectedDate = DateTime(pickedDate.year, pickedDate.month, pickedDate.day, pickedDate.hour, pickedDate.minute, pickedDate.second);
-        print("pickedDate=====$selectedDate");
-      });
-    }
-  }
 }
 
 class CustomCircle extends StatelessWidget {

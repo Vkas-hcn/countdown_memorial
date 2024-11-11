@@ -129,7 +129,7 @@ class _WelcomeScreenState extends State<HomeScreen> {
                                               image: DecorationImage(
                                                 image: snapshot.hasData
                                                     ? snapshot.data!
-                                                    : AssetImage('assets/placeholder.png'),
+                                                    : const AssetImage('assets/img/icon_logo.jpg'),
                                                 fit: BoxFit.cover,
                                               ),
                                             ),

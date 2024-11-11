@@ -203,4 +203,17 @@ class AppUtils {
         return 'assets/img/bg_record_1.webp';
     }
   }
+
+  static String getMoodName(int state) {
+    switch (state) {
+      case 1:
+        return 'Mood: Happy';
+      case 2:
+        return 'Mood: Neutral';
+      case 3:
+        return 'Mood: Unhappy';
+      default:
+        return 'Mood: Happy';
+    }
+  }
 }

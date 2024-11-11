@@ -135,7 +135,7 @@ class _FeelListPageState extends State<FeelListPageScreen> {
                     ],
                   ),
                 ),
-                if(events!.feelings.isNotEmpty)
+                if (events!.feelings.isNotEmpty)
                   ListView.builder(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
@@ -146,16 +146,16 @@ class _FeelListPageState extends State<FeelListPageScreen> {
                         onTap: () {
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (context) => AddFeelPage(
-                              event: events!,
-                              timestamp: events!.feelings[index].time,
-                            )),
+                            MaterialPageRoute(
+                                builder: (context) => AddFeelPage(
+                                      event: events!,
+                                      timestamp: events!.feelings[index].time,
+                                    )),
                           ).then((value) {
                             setState(() {
                               setUiData();
                             });
                           });
-
                         },
                         child: Stack(
                           alignment: Alignment.center,
@@ -178,18 +178,21 @@ class _FeelListPageState extends State<FeelListPageScreen> {
                                   padding: const EdgeInsets.all(16.0),
                                   child: Column(
                                     mainAxisAlignment: MainAxisAlignment.start,
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
-                                      const Text(
-                                        "The thought of this moment",
-                                        style: TextStyle(
+                                      Text(
+                                        AppUtils.getMoodName(
+                                            events!.feelings[index].state),
+                                        style: const TextStyle(
                                           fontWeight: FontWeight.w600,
                                           fontSize: 16,
                                           color: Color(0xFF010101),
                                         ),
                                       ),
                                       Padding(
-                                        padding: const EdgeInsets.only(top: 8.0),
+                                        padding:
+                                            const EdgeInsets.only(top: 8.0),
                                         child: Stack(
                                           alignment: Alignment.topRight,
                                           children: [
@@ -199,27 +202,29 @@ class _FeelListPageState extends State<FeelListPageScreen> {
                                               decoration: BoxDecoration(
                                                 color: Colors.white,
                                                 borderRadius:
-                                                BorderRadius.circular(4),
+                                                    BorderRadius.circular(4),
                                               ),
                                               child: Padding(
                                                 padding:
-                                                const EdgeInsets.all(8.0),
+                                                    const EdgeInsets.all(8.0),
                                                 child: Column(
                                                   mainAxisAlignment:
-                                                  MainAxisAlignment.start,
+                                                      MainAxisAlignment.start,
                                                   crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
+                                                      CrossAxisAlignment.start,
                                                   children: [
                                                     Text(
-                                                      events!.feelings[index].message,
+                                                      events!.feelings[index]
+                                                          .message,
                                                       style: const TextStyle(
                                                         fontSize: 14,
-                                                        color: Color(0xFF646668),
+                                                        color:
+                                                            Color(0xFF646668),
                                                       ),
                                                       maxLines: 3, // 设置最多显示3行
-                                                      overflow: TextOverflow.ellipsis, // 超出部分显示省略号
+                                                      overflow: TextOverflow
+                                                          .ellipsis, // 超出部分显示省略号
                                                     ),
-
                                                     const Spacer(),
                                                     Row(
                                                       children: [
@@ -227,14 +232,15 @@ class _FeelListPageState extends State<FeelListPageScreen> {
                                                         Text(
                                                           AppUtils
                                                               .getTimeFromTimestamp(
-                                                              events!
-                                                                  .feelings[
-                                                              index]
-                                                                  .time),
-                                                          style: const TextStyle(
+                                                                  events!
+                                                                      .feelings[
+                                                                          index]
+                                                                      .time),
+                                                          style:
+                                                              const TextStyle(
                                                             fontSize: 12,
-                                                            color:
-                                                            Color(0xFF999999),
+                                                            color: Color(
+                                                                0xFF999999),
                                                           ),
                                                         ),
                                                       ],
@@ -266,13 +272,13 @@ class _FeelListPageState extends State<FeelListPageScreen> {
                       );
                     },
                   )
-                  else
-                    const Padding(
-                      padding: EdgeInsets.only(top: 208.0),
-                      child: Center(
-                        child: Text('No Data found.'),
-                      ),
+                else
+                  const Padding(
+                    padding: EdgeInsets.only(top: 208.0),
+                    child: Center(
+                      child: Text('No Data found.'),
                     ),
+                  ),
               ],
             ),
           ),

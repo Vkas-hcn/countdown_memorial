@@ -51,7 +51,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
   void saveToNextPaper() async {
     Navigator.pushAndRemoveUntil(
         context,
-        MaterialPageRoute(builder: (context) => const AddDate()),
+        MaterialPageRoute(builder: (context) => const AddDate(type: 0)),
             (route) => route == null);
   }
 

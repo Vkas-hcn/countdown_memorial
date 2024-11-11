@@ -61,7 +61,6 @@ class DetailPageScreen extends StatefulWidget {
 class _DetailPageScreenState extends State<DetailPageScreen> {
   late Event event;
   final ScreenshotController _screenshotController = ScreenshotController();
-
   @override
   void initState() {
     super.initState();
@@ -170,7 +169,7 @@ class _DetailPageScreenState extends State<DetailPageScreen> {
                   image: snapshot.data!,
                   fit: BoxFit.cover,
                 )
-                    : null, // 在加载中时，可以选择添加其他占位符或背景颜色
+                    : null,
               ),
               child: SingleChildScrollView(
                 child: Column(
