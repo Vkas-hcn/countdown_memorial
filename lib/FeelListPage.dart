@@ -211,13 +211,15 @@ class _FeelListPageState extends State<FeelListPageScreen> {
                                                   CrossAxisAlignment.start,
                                                   children: [
                                                     Text(
-                                                      events!.feelings[index]
-                                                          .message,
+                                                      events!.feelings[index].message,
                                                       style: const TextStyle(
                                                         fontSize: 14,
                                                         color: Color(0xFF646668),
                                                       ),
+                                                      maxLines: 3, // 设置最多显示3行
+                                                      overflow: TextOverflow.ellipsis, // 超出部分显示省略号
                                                     ),
+
                                                     const Spacer(),
                                                     Row(
                                                       children: [
