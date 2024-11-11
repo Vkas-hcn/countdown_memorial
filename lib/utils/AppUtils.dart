@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import '../bean/EventManager.dart';
 import '../we/CountdownTimer.dart';
@@ -88,31 +89,57 @@ class AppUtils {
   static String getTimeFromTimestamp(String timestampInSeconds) {
     int timestamp = int.parse(timestampInSeconds);
     DateTime dateTime = DateTime.fromMicrosecondsSinceEpoch(timestamp);
-   return DateFormat('yyyy/MM/dd HH:mm').format(dateTime);
+    return DateFormat('yyyy/MM/dd HH:mm').format(dateTime);
   }
 
-  static Image getImagePath(String name) {
-    return name.startsWith('/data')
-        ? Image.file(
-            File(name),
-            fit: BoxFit.cover,
-          )
-        : Image.asset(
-            name,
-            fit: BoxFit.cover,
-          );
+// 获取持久化路径
+  static Future<String> getPersistentImagePath(String originalPath) async {
+    final Directory appDocDir = await getApplicationDocumentsDirectory();
+    final String fileName = originalPath.split('/').last; // 获取文件名
+    final String newPath = '${appDocDir.path}/$fileName';
+    return newPath;
   }
 
-  // 自定义方法 _getImageProvider
-  static ImageProvider getImageProvider(String bgUrl) {
+// 将图片保存到持久化存储
+  static Future<String> saveImageToPersistentStorage(
+      String originalPath) async {
+    final File originalFile = File(originalPath);
+    final String newPath = await getPersistentImagePath(originalPath);
+    final File persistentFile = File(newPath);
+
+    // 如果文件在持久路径中不存在，则复制过去
+    if (!await persistentFile.exists()) {
+      await originalFile.copy(newPath);
+    }
+    return newPath; // 返回持久化路径
+  }
+
+// 加载图片的方法
+  static Future<ImageProvider> getImageProvider(String bgUrl) async {
     if (bgUrl.startsWith('assets/')) {
-      // 如果路径以 'assets/' 开头，则加载应用内部资源图片
       return AssetImage(bgUrl);
     } else {
-      // 否则，加载手机相册中的图片
-      return FileImage(File(bgUrl));
+      final String persistentPath = await getPersistentImagePath(bgUrl);
+      return FileImage(File(persistentPath));
     }
   }
+
+
+  static Future<Image> getImagePath(String name) async {
+    if (name.startsWith('assets/')) {
+      return Image.asset(
+        name,
+        fit: BoxFit.cover,
+      );
+    } else {
+      final String persistentPath = await getPersistentImagePath(name);
+      return Image.file(
+        File(persistentPath),
+        fit: BoxFit.cover,
+      );
+    }
+  }
+
 
   //返回倒计时组件
   static Widget getCountDownWidget(int slete, String time) {

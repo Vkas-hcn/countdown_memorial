@@ -669,7 +669,18 @@ class CustomCircle extends StatelessWidget {
             ),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(8),
-              child: AppUtils.getImagePath(img),
+              child: FutureBuilder<Image>(
+                future: AppUtils.getImagePath(img),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.done &&
+                      snapshot.hasData) {
+                    return snapshot.data!;
+                  } else {
+                    // 占位符，例如加载中的进度指示器
+                    return CircularProgressIndicator();
+                  }
+                },
+              ),
             ),
           ),
         ),

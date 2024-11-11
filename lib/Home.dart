@@ -58,43 +58,43 @@ class _WelcomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: WillPopScope(
-      onWillPop: () async {
-        SystemNavigator.pop();
-        return false;
-      },
-      child: Container(
-        decoration: const BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage('assets/img/bg_main.webp'),
-            fit: BoxFit.fill,
+      body: WillPopScope(
+        onWillPop: () async {
+          SystemNavigator.pop();
+          return false;
+        },
+        child: Container(
+          decoration: const BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage('assets/img/bg_main.webp'),
+              fit: BoxFit.fill,
+            ),
           ),
-        ),
-        child: Stack(
-          fit: StackFit.expand,
-          children: [
-            const Positioned(
-              top: 50.0,
-              left: 20,
-              child: Text(
-                'Home',
-                style: TextStyle(
-                  fontFamily: 'ebgaramond',
-                  fontSize: 28,
-                  color: Color(0xFF1E293B),
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              const Positioned(
+                top: 50.0,
+                left: 20,
+                child: Text(
+                  'Home',
+                  style: TextStyle(
+                    fontFamily: 'ebgaramond',
+                    fontSize: 28,
+                    color: Color(0xFF1E293B),
+                  ),
                 ),
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(top: 50, right: 20, left: 20),
-              child: Align(
-                alignment: Alignment.topCenter,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    if (EventManager.events.isNotEmpty)
-                      Expanded(
-                        child: ListView.builder(
+              Padding(
+                padding: const EdgeInsets.only(top: 50, right: 20, left: 20),
+                child: Align(
+                  alignment: Alignment.topCenter,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (EventManager.events.isNotEmpty)
+                        Expanded(
+                          child: ListView.builder(
                             scrollDirection: Axis.vertical,
                             itemCount: EventManager.events.length,
                             itemBuilder: (context, index) {
@@ -102,7 +102,10 @@ class _WelcomeScreenState extends State<HomeScreen> {
                                 onTap: () {
                                   Navigator.push(
                                     context,
-                                    MaterialPageRoute(builder: (context) => DetailPage(event: EventManager.events[index])),
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          DetailPage(event: EventManager.events[index]),
+                                    ),
                                   ).then((value) {
                                     setState(() {
                                       getListData();
@@ -115,106 +118,101 @@ class _WelcomeScreenState extends State<HomeScreen> {
                                     Padding(
                                       padding: const EdgeInsets.symmetric(
                                           vertical: 12, horizontal: 12),
-                                      child: Container(
-                                        width: double.infinity,
-                                        height: 170,
-                                        decoration: BoxDecoration(
-                                          borderRadius:
-                                              BorderRadius.circular(16),
-                                          image: DecorationImage(
-                                            image: AppUtils.getImageProvider(EventManager.events[index].bgUrl),
-                                            fit: BoxFit.cover,
-                                          ),
-                                        ),
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(16.0),
-                                          child: Column(
-                                            mainAxisAlignment:
+                                      child: FutureBuilder<ImageProvider>(
+                                        future: AppUtils.getImageProvider(EventManager.events[index].bgUrl),
+                                        builder: (context, snapshot) {
+                                          return Container(
+                                            width: double.infinity,
+                                            height: 170,
+                                            decoration: BoxDecoration(
+                                              borderRadius: BorderRadius.circular(16),
+                                              image: DecorationImage(
+                                                image: snapshot.hasData
+                                                    ? snapshot.data!
+                                                    : AssetImage('assets/placeholder.png'),
+                                                fit: BoxFit.cover,
+                                              ),
+                                            ),
+                                            child: Padding(
+                                              padding: const EdgeInsets.all(16.0),
+                                              child: Column(
+                                                mainAxisAlignment:
                                                 MainAxisAlignment.spaceBetween,
-                                            crossAxisAlignment:
+                                                crossAxisAlignment:
                                                 CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                maxLines: 2,
-                                                EventManager.events[index].name,
-                                                style: const TextStyle(
-                                                  fontSize: 16,
-                                                  color: Color(0xFF010101),
-                                                ),
-                                              ),
-                                              Padding(
-                                                padding: const EdgeInsets.only(top: 8.0),
-                                                child: Row(
-                                                  children: [
-                                                    Text(
-                                                      AppUtils.timestampToYMD(EventManager.events[index].date),
-                                                      style: const TextStyle(
-                                                        fontSize: 14,
-                                                        color: Color(0xFF646668),
-                                                      ),
+                                                children: [
+                                                  Text(
+                                                    maxLines: 2,
+                                                    EventManager.events[index].name,
+                                                    style: const TextStyle(
+                                                      fontSize: 16,
+                                                      color: Color(0xFF010101),
                                                     ),
-                                                    const SizedBox(width: 12),
-                                                    // Container(
-                                                    //   decoration: BoxDecoration(
-                                                    //     color: const Color(0xFF98CCCC),
-                                                    //     borderRadius: BorderRadius.circular(4),
-                                                    //   ),
-                                                    //   child: Padding(
-                                                    //     padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 8),
-                                                    //     child: Text(
-                                                    //       AppUtils.getOptionsData()[EventManager.events[index].repeat],
-                                                    //       style: const TextStyle(
-                                                    //         fontSize: 12,
-                                                    //         color: Colors.white,
-                                                    //       ),
-                                                    //     ),
-                                                    //   ),
-                                                    // ),
-                                                  ],
-                                                ),
+                                                  ),
+                                                  Padding(
+                                                    padding: const EdgeInsets.only(top: 8.0),
+                                                    child: Row(
+                                                      children: [
+                                                        Text(
+                                                          AppUtils.timestampToYMD(EventManager.events[index].date),
+                                                          style: const TextStyle(
+                                                            fontSize: 14,
+                                                            color: Color(0xFF646668),
+                                                          ),
+                                                        ),
+                                                        const SizedBox(width: 12),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                  Padding(
+                                                    padding: const EdgeInsets.only(top: 8.0),
+                                                    child: AppUtils.getCountDownWidget(
+                                                      EventManager.events[index].style,
+                                                      EventManager.events[index].date,
+                                                    ),
+                                                  ),
+                                                ],
                                               ),
-                                              Padding(
-                                                padding: const EdgeInsets.only(top: 8.0),
-                                                child: AppUtils.getCountDownWidget(EventManager.events[index].style,EventManager.events[index].date),
-                                              )
-                                            ],
-                                          ),
-                                        ),
+                                            ),
+                                          );
+                                        },
                                       ),
-                                    )
+                                    ),
                                   ],
                                 ),
                               );
-                            }),
-                      )
-                    else
-                      const Padding(
-                        padding: EdgeInsets.only(top: 122.0),
-                        child: Stack(
-                          alignment: Alignment.center,
-                          children: [
-                            Column(
-                              children: [
-                                Text(
-                                  "No records yet.",
-                                  style: TextStyle(
-                                    color: Color(0xFF000000),
-                                    fontSize: 18,
+                            },
+                          ),
+                        )
+                      else
+                        const Padding(
+                          padding: EdgeInsets.only(top: 122.0),
+                          child: Stack(
+                            alignment: Alignment.center,
+                            children: [
+                              Column(
+                                children: [
+                                  Text(
+                                    "No records yet.",
+                                    style: TextStyle(
+                                      color: Color(0xFF000000),
+                                      fontSize: 18,
+                                    ),
                                   ),
-                                ),
-                              ],
-                            ),
-                          ],
+                                ],
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
-    ));
+    );
   }
 
   void ResultApp(BuildContext context, String num) {}
