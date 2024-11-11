@@ -159,204 +159,211 @@ class _DetailPageScreenState extends State<DetailPageScreen> {
           backToNextPaper();
           return false;
         },
-        child: Container(
-          height: double.infinity,
-          decoration: BoxDecoration(
-            image: DecorationImage(
-              image: AssetImage(event.bgUrl),
-              fit: BoxFit.cover,
-            ),
-          ),
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisSize: MainAxisSize.max,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(top: 42, left: 20, right: 20),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    mainAxisSize: MainAxisSize.max,
-                    children: [
-                      GestureDetector(
-                        onTap: () {
-                          backToNextPaper();
-                        },
-                        child: SizedBox(
-                          width: 28,
-                          height: 28,
-                          child: Image.asset('assets/img/icon_back.webp'),
-                        ),
+        child: FutureBuilder<ImageProvider>(
+          future: AppUtils.getImageProvider(event.bgUrl),
+          builder: (context, snapshot) {
+            return Container(
+              height: double.infinity,
+              decoration: BoxDecoration(
+                image: snapshot.connectionState == ConnectionState.done && snapshot.hasData
+                    ? DecorationImage(
+                  image: snapshot.data!,
+                  fit: BoxFit.cover,
+                )
+                    : null, // 在加载中时，可以选择添加其他占位符或背景颜色
+              ),
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.max,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(top: 42, left: 20, right: 20),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        mainAxisSize: MainAxisSize.max,
+                        children: [
+                          GestureDetector(
+                            onTap: () {
+                              backToNextPaper();
+                            },
+                            child: SizedBox(
+                              width: 28,
+                              height: 28,
+                              child: Image.asset('assets/img/icon_back.webp'),
+                            ),
+                          ),
+                          Spacer(),
+                          GestureDetector(
+                            onTap: () {
+                              shareFun();
+                            },
+                            child: SizedBox(
+                              width: 28,
+                              height: 28,
+                              child: Image.asset('assets/img/icon_share.webp'),
+                            ),
+                          ),
+                          const SizedBox(width: 20),
+                          GestureDetector(
+                            onTap: () {
+                              editFun();
+                            },
+                            child: SizedBox(
+                              width: 28,
+                              height: 28,
+                              child: Image.asset('assets/img/icon_edit.webp'),
+                            ),
+                          ),
+                          const SizedBox(width: 20),
+                          GestureDetector(
+                            onTap: () {
+                              showDeleteConfirmationDialog(context);
+                            },
+                            child: SizedBox(
+                              width: 28,
+                              height: 28,
+                              child: Image.asset('assets/img/icon_delete.webp'),
+                            ),
+                          ),
+                        ],
                       ),
-                      Spacer(),
-                      GestureDetector(
-                        onTap: () {
-                          shareFun();
-                        },
-                        child: SizedBox(
-                          width: 28,
-                          height: 28,
-                          child: Image.asset('assets/img/icon_share.webp'),
-                        ),
-                      ),
-                      const SizedBox(width: 20),
-                      GestureDetector(
-                        onTap: () {
-                          editFun();
-                        },
-                        child: SizedBox(
-                          width: 28,
-                          height: 28,
-                          child: Image.asset('assets/img/icon_edit.webp'),
-                        ),
-                      ),
-                      const SizedBox(width: 20),
-                      GestureDetector(
-                        onTap: () {
-                          // 删除逻辑
-                          showDeleteConfirmationDialog(context);
-                        },
-                        child: SizedBox(
-                          width: 28,
-                          height: 28,
-                          child: Image.asset('assets/img/icon_delete.webp'),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 120),
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
-                  child: Screenshot(
-                    controller: _screenshotController,
-                    child: Container(
-                      width: double.infinity,
-                      height: 256,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(16),
-                        image: const DecorationImage(
-                          image: AssetImage('assets/img/bg_detile.webp'),
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(12.0),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                              child: Text(
-                                maxLines: 2,
-                                event.name,
-                                style: const TextStyle(
-                                  fontSize: 16,
-                                  color: Color(0xFF1E293B),
+                    ),
+                    const SizedBox(height: 120),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
+                      child: Screenshot(
+                        controller: _screenshotController,
+                        child: Container(
+                          width: double.infinity,
+                          height: 256,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(16),
+                            image: const DecorationImage(
+                              image: AssetImage('assets/img/bg_detile.webp'),
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(12.0),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                                  child: Text(
+                                    maxLines: 2,
+                                    event.name,
+                                    style: const TextStyle(
+                                      fontSize: 16,
+                                      color: Color(0xFF1E293B),
+                                    ),
+                                  ),
                                 ),
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.only(top: 0, right: 12, left: 12),
-                              child: AppUtils.getCountDownWidget(
-                                  widget.event.style, widget.event.date),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.only(top: 0, right: 12, left: 12),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.max,
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  GestureDetector(
-                                    onTap: () {
-                                      Navigator.push(context, MaterialPageRoute(builder: (context) => AddFeelPage(event: event)));
-                                    },
-                                    child: Container(
-                                      height: 40,
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(8),
-                                        image: const DecorationImage(
-                                          image: AssetImage('assets/img/bg_fee_add.webp'),
-                                          fit: BoxFit.fill,
-                                        ),
-                                      ),
-                                      child: Padding(
-                                        padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 24),
-                                        child: Center(
-                                          child: Row(
-                                            children: [
-                                              SizedBox(
-                                                width: 16,
-                                                height: 16,
-                                                child: Image.asset('assets/img/icon_feel_add.png'),
+                                Padding(
+                                  padding: const EdgeInsets.only(top: 0, right: 12, left: 12),
+                                  child: AppUtils.getCountDownWidget(
+                                      widget.event.style, widget.event.date),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.only(top: 0, right: 12, left: 12),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.max,
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      GestureDetector(
+                                        onTap: () {
+                                          Navigator.push(context, MaterialPageRoute(builder: (context) => AddFeelPage(event: event)));
+                                        },
+                                        child: Container(
+                                          height: 40,
+                                          decoration: BoxDecoration(
+                                            borderRadius: BorderRadius.circular(8),
+                                            image: const DecorationImage(
+                                              image: AssetImage('assets/img/bg_fee_add.webp'),
+                                              fit: BoxFit.fill,
+                                            ),
+                                          ),
+                                          child: Padding(
+                                            padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 24),
+                                            child: Center(
+                                              child: Row(
+                                                children: [
+                                                  SizedBox(
+                                                    width: 16,
+                                                    height: 16,
+                                                    child: Image.asset('assets/img/icon_feel_add.png'),
+                                                  ),
+                                                  const Text(
+                                                    'Add Feelings',
+                                                    style: TextStyle(
+                                                      color: Color(0xFFFFFFFF),
+                                                      fontSize: 12,
+                                                    ),
+                                                  ),
+                                                ],
                                               ),
-                                              const Text(
-                                                'Add Feelings',
-                                                style: TextStyle(
-                                                  color: Color(0xFFFFFFFF),
-                                                  fontSize: 12,
-                                                ),
-                                              ),
-                                            ],
+                                            ),
                                           ),
                                         ),
                                       ),
-                                    ),
-                                  ),
-                                  GestureDetector(
-                                    onTap: () {
-                                      Navigator.push(context, MaterialPageRoute(builder: (context) => FeelListPage(event: event)));
-                                    },
-                                    child: Container(
-                                      height: 40,
-                                      decoration: BoxDecoration(
-                                        image: const DecorationImage(
-                                          image: AssetImage('assets/img/bg_fee_record.webp'),
-                                          fit: BoxFit.fill,
-                                        ),
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                      child: Padding(
-                                        padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 24),
-                                        child: Center(
-                                          child: Row(
-                                            children: [
-                                              SizedBox(
-                                                width: 16,
-                                                height: 16,
-                                                child: Image.asset('assets/img/icon_feel_re.png'),
+                                      GestureDetector(
+                                        onTap: () {
+                                          Navigator.push(context, MaterialPageRoute(builder: (context) => FeelListPage(event: event)));
+                                        },
+                                        child: Container(
+                                          height: 40,
+                                          decoration: BoxDecoration(
+                                            image: const DecorationImage(
+                                              image: AssetImage('assets/img/bg_fee_record.webp'),
+                                              fit: BoxFit.fill,
+                                            ),
+                                            borderRadius: BorderRadius.circular(8),
+                                          ),
+                                          child: Padding(
+                                            padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 24),
+                                            child: Center(
+                                              child: Row(
+                                                children: [
+                                                  SizedBox(
+                                                    width: 16,
+                                                    height: 16,
+                                                    child: Image.asset('assets/img/icon_feel_re.png'),
+                                                  ),
+                                                  const SizedBox(width: 2),
+                                                  const Text(
+                                                    'Feelings Record',
+                                                    style: TextStyle(
+                                                      color: Color(0xFF999999),
+                                                      fontSize: 12,
+                                                    ),
+                                                  ),
+                                                ],
                                               ),
-                                              const SizedBox(width: 2),
-                                              const Text(
-                                                'Feelings Record',
-                                                style: TextStyle(
-                                                  color: Color(0xFF999999),
-                                                  fontSize: 12,
-                                                ),
-                                              ),
-                                            ],
+                                            ),
                                           ),
                                         ),
                                       ),
-                                    ),
+                                    ],
                                   ),
-                                ],
-                              ),
+                                ),
+                              ],
                             ),
-                          ],
+                          ),
                         ),
                       ),
                     ),
-                  ),
+                  ],
                 ),
-              ],
-            ),
-          ),
+              ),
+            );
+          },
         ),
       ),
     );
   }
+
 
 }
