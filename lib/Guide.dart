@@ -3,9 +3,12 @@ import 'dart:async';
 import 'package:countdown_memorial/utils/AppUtils.dart';
 import 'package:countdown_memorial/utils/LocalStorage.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:user_messaging_platform/user_messaging_platform.dart';
 
 import 'MainApp.dart';
 import 'StartPaper.dart';
+import 'ad/ShowAdFun.dart';
 import 'gg/LTFDW.dart';
 
 class Guide extends StatelessWidget {
@@ -28,21 +31,22 @@ class WelcomeScreen extends StatefulWidget {
 
 class _WelcomeScreenState extends State<WelcomeScreen>
     with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
   double _progress = 0.0;
   Timer? _timerProgress;
   bool restartState = false;
   DateTime? _pausedTime;
   late LTFDW Ltfdw;
+  late ShowAdFun adManager;
+  final _ump = UserMessagingPlatform.instance;
+  final String _testDeviceId = "76A730E9AE68BD60E99DF7B83D65C4B4";
+  late StreamSubscription _umpStateSubscription;
+  final Duration checkInterval = const Duration(milliseconds: 500);
 
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(seconds: 10),
-    );
-    startProgress();
+    adManager = ShowAdFun(context);
+    requestConsentInfoUpdate();
     Ltfdw = LTFDW(
       onAppResumed: _handleAppResumed,
       onAppPaused: _handleAppPaused,
@@ -53,21 +57,121 @@ class _WelcomeScreenState extends State<WelcomeScreen>
     });
   }
 
+  void loadingGuideAd() {
+    //延迟1秒
+    Future.delayed(const Duration(seconds: 2), () {
+      adManager.loadAd(AdWhere.OPEN);
+      adManager.loadAd(AdWhere.BACKINT);
+      adManager.loadAd(AdWhere.SAVE);
+      showOpenAd();
+    });
+  }
+
+  void _startMonitoringUmpState() {
+    _umpStateSubscription = Stream.periodic(checkInterval).listen((_) async {
+      bool umpState =
+          await LocalStorage().getValue(LocalStorage.umpState) ?? false;
+      if (umpState) {
+        _umpStateSubscription.cancel();
+        _startProgress();
+        loadingGuideAd();
+      }
+    });
+  }
+
+Future<void> requestConsentInfoUpdate() async {
+  bool? data = await LocalStorage().getValue(LocalStorage.umpState);
+  print("requestConsentInfoUpdate---${data}");
+  if (data == true) {
+    loadingGuideAd();
+    return;
+  }
+  _startMonitoringUmpState();
+
+  int retryCount = 0;
+  const maxRetries = 1;
+
+  while (retryCount <= maxRetries) {
+    try {
+      final info = await _ump.requestConsentInfoUpdate(_buildConsentRequestParameters());
+      print("requestConsentInfoUpdate---->${info.consentStatus}");
+      if (info.consentStatus == ConsentStatus.required) {
+        showConsentForm();
+      } else {
+        LocalStorage().setValue(LocalStorage.umpState, true);
+      }
+      break;
+    } catch (e) {
+      if (e is PlatformException && e.code == 'timeout') {
+        retryCount++;
+        if (retryCount > maxRetries) {
+          LocalStorage().setValue(LocalStorage.umpState, true);
+          return;
+        }
+        print("Request timed out, retrying... ($retryCount/$maxRetries)");
+        await Future.delayed(Duration(seconds: 1));
+      } else {
+        LocalStorage().setValue(LocalStorage.umpState, true);
+        return;
+      }
+    }
+  }
+}
+
+
+  ConsentRequestParameters _buildConsentRequestParameters() {
+    final parameters = ConsentRequestParameters(
+      tagForUnderAgeOfConsent: false,
+      debugSettings: ConsentDebugSettings(
+        geography: DebugGeography.EEA,
+        testDeviceIds: [_testDeviceId],
+      ),
+    );
+    return parameters;
+  }
+
+  Future<void> showConsentForm() {
+    return _ump.showConsentForm().then((info) {
+      print("showConsentForm---->${info.consentStatus}");
+      LocalStorage().setValue(LocalStorage.umpState, true);
+    });
+  }
+
+  void showOpenAd() async {
+    int elapsed = 0;
+    const int timeout = 12000;
+    const int interval = 500;
+    print("准备展示open广告");
+    Timer.periodic(const Duration(milliseconds: interval), (timer) {
+      elapsed += interval;
+      if (adManager.canShowAd(AdWhere.OPEN)) {
+        adManager.showAd(context, AdWhere.OPEN, () {
+          print("关闭广告-------");
+          pageToHome();
+        });
+        timer.cancel();
+      } else if (elapsed >= timeout) {
+        print("超时，直接进入首页");
+        pageToHome();
+        timer.cancel();
+      }
+    });
+  }
+
   void _startProgress() {
-    const int totalDuration = 2000; // Total duration in milliseconds
+    const int totalDuration = 12000; // Total duration in milliseconds
     const int updateInterval = 50; // Update interval in milliseconds
     const int totalUpdates = totalDuration ~/ updateInterval;
-
     int currentUpdate = 0;
-
-    _timerProgress = Timer.periodic(Duration(milliseconds: updateInterval), (timer) {
+    _progress = 0.0;
+    _timerProgress =
+        Timer.periodic(const Duration(milliseconds: updateInterval), (timer) {
       setState(() {
         _progress = (currentUpdate + 1) / totalUpdates;
       });
       currentUpdate++;
       if (currentUpdate >= totalUpdates) {
         _timerProgress?.cancel();
-        pageToHome();
       }
     });
   }
@@ -87,22 +191,14 @@ class _WelcomeScreenState extends State<WelcomeScreen>
 
   @override
   void dispose() {
-    _controller.dispose();
     super.dispose();
   }
 
-  void startProgress() {
-    _controller.forward();
-  }
+  void startProgress() {}
 
-  void stopProgress() {
-    _controller.stop();
-  }
+  void stopProgress() {}
 
-  void resetProgress() {
-    _controller.reset();
-  }
-
+  void resetProgress() {}
 
   void _handleAppResumed() {
     LocalStorage.isInBack = false;
@@ -114,7 +210,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
       }
       if (timeInBackground > 3 && LocalStorage.int_ad_show == false) {
         restartState = true;
-        // restartApp();
+        restartApp();
       }
     }
   }
@@ -160,14 +256,16 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.only(bottom: 80,right: 102,left: 102),
+                padding:
+                    const EdgeInsets.only(bottom: 80, right: 102, left: 102),
                 child: Align(
                   alignment: Alignment.bottomCenter,
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       ProgressBar(
-                        progress: _progress, // Set initial progress here
+                        progress: _progress,
+                        // Set initial progress here
                         height: 6,
                         borderRadius: 3,
                         backgroundColor: Color(0xFF828282),
@@ -187,10 +285,9 @@ class _WelcomeScreenState extends State<WelcomeScreen>
   void restartApp() {
     AppUtils.navigatorKey.currentState?.pushAndRemoveUntil(
       MaterialPageRoute(builder: (context) => const Guide()),
-          (route) => false,
+      (route) => false,
     );
   }
-
 }
 
 class ProgressBar extends StatelessWidget {

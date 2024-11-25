@@ -12,6 +12,8 @@ import 'package:path_provider/path_provider.dart';
 import 'package:screenshot/screenshot.dart';
 import 'package:share_plus/share_plus.dart';
 import 'AddFeelPage.dart';
+import 'ad/LoadingOverlay.dart';
+import 'ad/ShowAdFun.dart';
 import 'bean/Event.dart';
 
 class DetailPage extends StatefulWidget {
@@ -52,7 +54,8 @@ class DetailPageScreen extends StatefulWidget {
   final Event event;
   final Function(Event) onEventUpdated;
 
-  const DetailPageScreen({super.key, required this.event, required this.onEventUpdated});
+  const DetailPageScreen(
+      {super.key, required this.event, required this.onEventUpdated});
 
   @override
   _DetailPageScreenState createState() => _DetailPageScreenState();
@@ -61,10 +64,33 @@ class DetailPageScreen extends StatefulWidget {
 class _DetailPageScreenState extends State<DetailPageScreen> {
   late Event event;
   final ScreenshotController _screenshotController = ScreenshotController();
+  late ShowAdFun adManager;
+  final LoadingOverlay _loadingOverlay = LoadingOverlay();
+
   @override
   void initState() {
     super.initState();
     event = widget.event;
+    adManager = AppUtils.getMobUtils(context);
+  }
+
+  void showAdNextPaper(AdWhere adWhere, Function() nextJump) async {
+    if (!adManager.canShowAd(adWhere)) {
+      adManager.loadAd(adWhere);
+    }
+    setState(() {
+      _loadingOverlay.show(context);
+    });
+    AppUtils.showScanAd(context, adWhere, 5, () {
+      setState(() {
+        _loadingOverlay.hide();
+      });
+    }, () {
+      setState(() {
+        _loadingOverlay.hide();
+      });
+      nextJump();
+    });
   }
 
   void editFun() async {
@@ -77,13 +103,17 @@ class _DetailPageScreenState extends State<DetailPageScreen> {
       });
       print("object----editFun=${event.toJson()}");
 
-      widget.onEventUpdated(event);  // 通知父级更新
+      widget.onEventUpdated(event); // 通知父级更新
     });
   }
+
   void deleteFun() async {
-    EventManager.deleteEvent(event.id);
-    Navigator.pop(context);
+    showAdNextPaper(AdWhere.SAVE, () {
+      EventManager.deleteEvent(event.id);
+      Navigator.pop(context);
+    });
   }
+
   void showDeleteConfirmationDialog(BuildContext context) {
     showDialog(
       context: context,
@@ -111,11 +141,12 @@ class _DetailPageScreenState extends State<DetailPageScreen> {
       },
     );
   }
+
   void saveToNextPaper() async {
     Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(builder: (context) => MainApp()),
-            (route) => route == null);
+        (route) => route == null);
   }
 
   Future<void> _captureAndShare() async {
@@ -138,17 +169,16 @@ class _DetailPageScreenState extends State<DetailPageScreen> {
       );
     }
   }
+
   void backToNextPaper() async {
-    // 返回逻辑示例
-    Navigator.pop(context);
+    showAdNextPaper(AdWhere.BACKINT, () {
+      Navigator.pop(context);
+    });
   }
 
   void shareFun() async {
-    // 分享逻辑
     _captureAndShare();
   }
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -164,11 +194,12 @@ class _DetailPageScreenState extends State<DetailPageScreen> {
             return Container(
               height: double.infinity,
               decoration: BoxDecoration(
-                image: snapshot.connectionState == ConnectionState.done && snapshot.hasData
+                image: snapshot.connectionState == ConnectionState.done &&
+                        snapshot.hasData
                     ? DecorationImage(
-                  image: snapshot.data!,
-                  fit: BoxFit.cover,
-                )
+                        image: snapshot.data!,
+                        fit: BoxFit.cover,
+                      )
                     : null,
               ),
               child: SingleChildScrollView(
@@ -178,7 +209,8 @@ class _DetailPageScreenState extends State<DetailPageScreen> {
                   mainAxisSize: MainAxisSize.max,
                   children: [
                     Padding(
-                      padding: const EdgeInsets.only(top: 42, left: 20, right: 20),
+                      padding:
+                          const EdgeInsets.only(top: 42, left: 20, right: 20),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         mainAxisSize: MainAxisSize.max,
@@ -207,7 +239,9 @@ class _DetailPageScreenState extends State<DetailPageScreen> {
                           const SizedBox(width: 20),
                           GestureDetector(
                             onTap: () {
-                              editFun();
+                              showAdNextPaper(AdWhere.SAVE, () {
+                                editFun();
+                              });
                             },
                             child: SizedBox(
                               width: 28,
@@ -231,7 +265,8 @@ class _DetailPageScreenState extends State<DetailPageScreen> {
                     ),
                     const SizedBox(height: 120),
                     Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 12, horizontal: 12),
                       child: Screenshot(
                         controller: _screenshotController,
                         child: Container(
@@ -251,7 +286,8 @@ class _DetailPageScreenState extends State<DetailPageScreen> {
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
                                 Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 20.0),
                                   child: Text(
                                     maxLines: 2,
                                     event.name,
@@ -262,38 +298,52 @@ class _DetailPageScreenState extends State<DetailPageScreen> {
                                   ),
                                 ),
                                 Padding(
-                                  padding: const EdgeInsets.only(top: 0, right: 12, left: 12),
+                                  padding: const EdgeInsets.only(
+                                      top: 0, right: 12, left: 12),
                                   child: AppUtils.getCountDownWidget(
                                       widget.event.style, widget.event.date),
                                 ),
                                 Padding(
-                                  padding: const EdgeInsets.only(top: 0, right: 12, left: 12),
+                                  padding: const EdgeInsets.only(
+                                      top: 0, right: 12, left: 12),
                                   child: Row(
                                     mainAxisSize: MainAxisSize.max,
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
                                     children: [
                                       GestureDetector(
                                         onTap: () {
-                                          Navigator.push(context, MaterialPageRoute(builder: (context) => AddFeelPage(event: event)));
+                                          showAdNextPaper(AdWhere.SAVE, () {
+                                            Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        AddFeelPage(
+                                                            event: event)));
+                                          });
                                         },
                                         child: Container(
                                           height: 40,
                                           decoration: BoxDecoration(
-                                            borderRadius: BorderRadius.circular(8),
+                                            borderRadius:
+                                                BorderRadius.circular(8),
                                             image: const DecorationImage(
-                                              image: AssetImage('assets/img/bg_fee_add.webp'),
+                                              image: AssetImage(
+                                                  'assets/img/bg_fee_add.webp'),
                                               fit: BoxFit.fill,
                                             ),
                                           ),
                                           child: Padding(
-                                            padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 24),
+                                            padding: const EdgeInsets.symmetric(
+                                                vertical: 8.0, horizontal: 24),
                                             child: Center(
                                               child: Row(
                                                 children: [
                                                   SizedBox(
                                                     width: 16,
                                                     height: 16,
-                                                    child: Image.asset('assets/img/icon_feel_add.png'),
+                                                    child: Image.asset(
+                                                        'assets/img/icon_feel_add.png'),
                                                   ),
                                                   const Text(
                                                     'Add Feelings',
@@ -310,26 +360,37 @@ class _DetailPageScreenState extends State<DetailPageScreen> {
                                       ),
                                       GestureDetector(
                                         onTap: () {
-                                          Navigator.push(context, MaterialPageRoute(builder: (context) => FeelListPage(event: event)));
+                                          showAdNextPaper(AdWhere.SAVE, () {
+                                            Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        FeelListPage(
+                                                            event: event)));
+                                          });
                                         },
                                         child: Container(
                                           height: 40,
                                           decoration: BoxDecoration(
                                             image: const DecorationImage(
-                                              image: AssetImage('assets/img/bg_fee_record.webp'),
+                                              image: AssetImage(
+                                                  'assets/img/bg_fee_record.webp'),
                                               fit: BoxFit.fill,
                                             ),
-                                            borderRadius: BorderRadius.circular(8),
+                                            borderRadius:
+                                                BorderRadius.circular(8),
                                           ),
                                           child: Padding(
-                                            padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 24),
+                                            padding: const EdgeInsets.symmetric(
+                                                vertical: 8.0, horizontal: 24),
                                             child: Center(
                                               child: Row(
                                                 children: [
                                                   SizedBox(
                                                     width: 16,
                                                     height: 16,
-                                                    child: Image.asset('assets/img/icon_feel_re.png'),
+                                                    child: Image.asset(
+                                                        'assets/img/icon_feel_re.png'),
                                                   ),
                                                   const SizedBox(width: 2),
                                                   const Text(
@@ -363,6 +424,4 @@ class _DetailPageScreenState extends State<DetailPageScreen> {
       ),
     );
   }
-
-
 }

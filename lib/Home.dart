@@ -4,6 +4,8 @@ import 'package:countdown_memorial/utils/AppUtils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'DetailPage.dart';
+import 'ad/LoadingOverlay.dart';
+import 'ad/ShowAdFun.dart';
 import 'bean/EventManager.dart';
 
 class Home extends StatelessWidget {
@@ -23,12 +25,17 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _WelcomeScreenState extends State<HomeScreen> {
+  late ShowAdFun adManager;
+  final LoadingOverlay _loadingOverlay = LoadingOverlay();
+
   @override
   void initState() {
     super.initState();
     WidgetsFlutterBinding.ensureInitialized();
+    adManager = AppUtils.getMobUtils(context);
+    adManager.loadAd(AdWhere.SAVE);
     print("Home----initState");
-      getListData();
+    getListData();
   }
 
   @override
@@ -54,6 +61,38 @@ class _WelcomeScreenState extends State<HomeScreen> {
     setState(() {}); // Call setState after data is loaded to rebuild the UI
   }
 
+  void showAdNextPaper(int index) async {
+    if (!adManager.canShowAd(AdWhere.SAVE)) {
+      adManager.loadAd(AdWhere.SAVE);
+    }
+    setState(() {
+      _loadingOverlay.show(context);
+    });
+    AppUtils.showScanAd(context, AdWhere.SAVE, 5, () {
+      setState(() {
+        _loadingOverlay.hide();
+      });
+    }, () {
+      setState(() {
+        _loadingOverlay.hide();
+      });
+      nextpage(index);
+    });
+  }
+
+  void nextpage(int index) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => DetailPage(
+            event: EventManager.events[index]),
+      ),
+    ).then((value) {
+      setState(() {
+        getListData();
+      });
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -100,17 +139,7 @@ class _WelcomeScreenState extends State<HomeScreen> {
                             itemBuilder: (context, index) {
                               return GestureDetector(
                                 onTap: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) =>
-                                          DetailPage(event: EventManager.events[index]),
-                                    ),
-                                  ).then((value) {
-                                    setState(() {
-                                      getListData();
-                                    });
-                                  });
+                                  showAdNextPaper(index);
                                 },
                                 child: Stack(
                                   alignment: Alignment.center,
@@ -119,56 +148,77 @@ class _WelcomeScreenState extends State<HomeScreen> {
                                       padding: const EdgeInsets.symmetric(
                                           vertical: 12, horizontal: 12),
                                       child: FutureBuilder<ImageProvider>(
-                                        future: AppUtils.getImageProvider(EventManager.events[index].bgUrl),
+                                        future: AppUtils.getImageProvider(
+                                            EventManager.events[index].bgUrl),
                                         builder: (context, snapshot) {
                                           return Container(
                                             width: double.infinity,
                                             height: 170,
                                             decoration: BoxDecoration(
-                                              borderRadius: BorderRadius.circular(16),
+                                              borderRadius:
+                                              BorderRadius.circular(16),
                                               image: DecorationImage(
                                                 image: snapshot.hasData
                                                     ? snapshot.data!
-                                                    : const AssetImage('assets/img/icon_logo.jpg'),
+                                                    : const AssetImage(
+                                                    'assets/img/icon_logo.jpg'),
                                                 fit: BoxFit.cover,
                                               ),
                                             ),
                                             child: Padding(
-                                              padding: const EdgeInsets.all(16.0),
+                                              padding:
+                                              const EdgeInsets.all(16.0),
                                               child: Column(
                                                 mainAxisAlignment:
-                                                MainAxisAlignment.spaceBetween,
+                                                MainAxisAlignment
+                                                    .spaceBetween,
                                                 crossAxisAlignment:
                                                 CrossAxisAlignment.start,
                                                 children: [
                                                   Text(
                                                     maxLines: 2,
-                                                    EventManager.events[index].name,
+                                                    EventManager
+                                                        .events[index].name,
                                                     style: const TextStyle(
                                                       fontSize: 16,
                                                       color: Color(0xFF010101),
                                                     ),
                                                   ),
                                                   Padding(
-                                                    padding: const EdgeInsets.only(top: 8.0),
+                                                    padding:
+                                                    const EdgeInsets.only(
+                                                        top: 8.0),
                                                     child: Row(
                                                       children: [
                                                         Text(
-                                                          AppUtils.timestampToYMD(EventManager.events[index].date),
-                                                          style: const TextStyle(
+                                                          AppUtils
+                                                              .timestampToYMD(
+                                                              EventManager
+                                                                  .events[
+                                                              index]
+                                                                  .date),
+                                                          style:
+                                                          const TextStyle(
                                                             fontSize: 14,
-                                                            color: Color(0xFF646668),
+                                                            color: Color(
+                                                                0xFF646668),
                                                           ),
                                                         ),
-                                                        const SizedBox(width: 12),
+                                                        const SizedBox(
+                                                            width: 12),
                                                       ],
                                                     ),
                                                   ),
                                                   Padding(
-                                                    padding: const EdgeInsets.only(top: 8.0),
-                                                    child: AppUtils.getCountDownWidget(
-                                                      EventManager.events[index].style,
-                                                      EventManager.events[index].date,
+                                                    padding:
+                                                    const EdgeInsets.only(
+                                                        top: 8.0),
+                                                    child: AppUtils
+                                                        .getCountDownWidget(
+                                                      EventManager
+                                                          .events[index].style,
+                                                      EventManager
+                                                          .events[index].date,
                                                     ),
                                                   ),
                                                 ],

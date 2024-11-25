@@ -6,20 +6,21 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
+import 'ad/LoadingOverlay.dart';
+import 'ad/ShowAdFun.dart';
 import 'bean/Event.dart';
 import 'bean/EventManager.dart';
 
 class AddFeelPage extends StatelessWidget {
   final Event event;
   final String? timestamp;
+
   const AddFeelPage({super.key, required this.event, this.timestamp});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: AddFeelPageScreen(
-        event: event, timestamp:timestamp
-      ),
+      body: AddFeelPageScreen(event: event, timestamp: timestamp),
     );
   }
 }
@@ -41,6 +42,8 @@ class _AddFeelPageState extends State<AddFeelPageScreen> {
   int repeat = 1;
   DateTime selectedDate = DateTime.now();
   Event? events;
+  late ShowAdFun adManager;
+  final LoadingOverlay _loadingOverlay = LoadingOverlay();
 
   @override
   void initState() {
@@ -50,19 +53,38 @@ class _AddFeelPageState extends State<AddFeelPageScreen> {
       setUiData();
     });
     nameController.addListener(showWeightController);
+    adManager = AppUtils.getMobUtils(context);
   }
 
   void setUiData() {
     events = widget.event;
-    if(widget.timestamp!=null){
-      //循环查找id相同的值
+    if (widget.timestamp != null) {
       events?.feelings.forEach((element) {
-        if(element.time==widget.timestamp){
+        if (element.time == widget.timestamp) {
           nameController.text = element.message;
           selectCount = element.state;
         }
       });
     }
+  }
+
+  void showAdNextPaper(AdWhere adWhere, Function() nextJump) async {
+    if (!adManager.canShowAd(adWhere)) {
+      adManager.loadAd(adWhere);
+    }
+    setState(() {
+      _loadingOverlay.show(context);
+    });
+    AppUtils.showScanAd(context, adWhere, 5, () {
+      setState(() {
+        _loadingOverlay.hide();
+      });
+    }, () {
+      setState(() {
+        _loadingOverlay.hide();
+      });
+      nextJump();
+    });
   }
 
   @override
@@ -75,8 +97,14 @@ class _AddFeelPageState extends State<AddFeelPageScreen> {
     nameController.text.trim();
   }
 
-  void backToNextPaper() async {
-    Navigator.pop(context);
+  void backToNextPaper(bool isSave) async {
+    if (isSave) {
+      Navigator.pop(context);
+      return;
+    }
+    showAdNextPaper(AdWhere.BACKINT, () {
+      Navigator.pop(context);
+    });
   }
 
   void deleteIntakeById(int timestamp) {
@@ -92,22 +120,27 @@ class _AddFeelPageState extends State<AddFeelPageScreen> {
   }
 
   void saveData() {
-    if (nameController.text.trim().isEmpty) {
+    if (nameController.text
+        .trim()
+        .isEmpty) {
       Fluttertoast.showToast(msg: "Please enter the content");
       return;
     }
     Feeling value = Feeling(
-        time:  (DateTime.now().microsecondsSinceEpoch).toString(),
+        time: (DateTime
+            .now()
+            .microsecondsSinceEpoch).toString(),
         message: nameController.text.trim(),
         state: selectCount);
-    if(widget.timestamp!=null){
-      events?.feelings.removeWhere((element) => element.time==widget.timestamp);
+    if (widget.timestamp != null) {
+      events?.feelings
+          .removeWhere((element) => element.time == widget.timestamp);
     }
     events?.feelings.add(value);
 
     EventManager.updateEvent(events!);
     Fluttertoast.showToast(msg: "Saved Successfully");
-    backToNextPaper();
+    backToNextPaper(true);
   }
 
   @override
@@ -115,7 +148,7 @@ class _AddFeelPageState extends State<AddFeelPageScreen> {
     return Scaffold(
       body: WillPopScope(
         onWillPop: () async {
-          backToNextPaper();
+          backToNextPaper(false);
           return false;
         },
         child: Container(
@@ -133,7 +166,7 @@ class _AddFeelPageState extends State<AddFeelPageScreen> {
                     children: [
                       GestureDetector(
                         onTap: () {
-                          backToNextPaper();
+                          backToNextPaper(false);
                         },
                         child: SizedBox(
                           width: 24,
@@ -170,8 +203,7 @@ class _AddFeelPageState extends State<AddFeelPageScreen> {
                           controller: nameController,
                           maxLines: null,
                           maxLength: 500,
-                          buildCounter: (
-                            BuildContext context, {
+                          buildCounter: (BuildContext context, {
                             required int currentLength,
                             required bool isFocused,
                             required int? maxLength,
@@ -230,7 +262,7 @@ class _AddFeelPageState extends State<AddFeelPageScreen> {
                                 width: 74,
                                 height: 74,
                                 child:
-                                    Image.asset(AppUtils.getSelectCountName(1)),
+                                Image.asset(AppUtils.getSelectCountName(1)),
                               ),
                               if (selectCount == 1)
                                 Padding(
@@ -270,7 +302,7 @@ class _AddFeelPageState extends State<AddFeelPageScreen> {
                                 width: 74,
                                 height: 74,
                                 child:
-                                    Image.asset(AppUtils.getSelectCountName(2)),
+                                Image.asset(AppUtils.getSelectCountName(2)),
                               ),
                               if (selectCount == 2)
                                 Padding(
@@ -310,7 +342,7 @@ class _AddFeelPageState extends State<AddFeelPageScreen> {
                                 width: 74,
                                 height: 74,
                                 child:
-                                    Image.asset(AppUtils.getSelectCountName(3)),
+                                Image.asset(AppUtils.getSelectCountName(3)),
                               ),
                               if (selectCount == 3)
                                 Padding(
@@ -341,7 +373,9 @@ class _AddFeelPageState extends State<AddFeelPageScreen> {
                   padding: const EdgeInsets.only(top: 36),
                   child: GestureDetector(
                     onTap: () {
-                      saveData();
+                      showAdNextPaper(AdWhere.SAVE, () {
+                        saveData();
+                      });
                     },
                     child: Container(
                       width: 243,
@@ -370,96 +404,96 @@ class _AddFeelPageState extends State<AddFeelPageScreen> {
     );
   }
 
-  void _showBottomSheet() {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      isScrollControlled: true,
-      builder: (BuildContext context) {
-        return Container(
-          width: 351,
-          height: 312,
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(32),
-          ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: List.generate(AppUtils.getOptionsData().length, (index) {
-              return GestureDetector(
-                onTap: () {
-                  setState(() {
-                    repeat = index;
-                  });
-                  Navigator.pop(context);
-                },
-                child: Container(
-                  margin: const EdgeInsets.symmetric(vertical: 8.0),
-                  padding: const EdgeInsets.symmetric(
-                      vertical: 12.0, horizontal: 20),
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    color: repeat == index
-                        ? Color(0xFFF1F5F9)
-                        : Colors.transparent,
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Center(
-                    child: Text(
-                      AppUtils.getOptionsData()[index],
-                      style: TextStyle(
-                        color: repeat == index
-                            ? Color(0xFF1E293B)
-                            : Color(0xFF999999),
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
-                ),
-              );
-            }),
-          ),
-        );
-      },
-    );
-  }
-
-  Future<void> _selectDate(BuildContext context) async {
-    final DateTime? pickedDate = await showDatePicker(
-      context: context,
-      initialDate: DateTime.now().add(const Duration(days: 1)),
-      // 初始日期为明天
-      firstDate: DateTime.now().add(const Duration(days: 1)),
-      // 最早日期为明天
-      lastDate: DateTime(2100),
-      // 设置一个合理的未来日期
-      builder: (BuildContext context, Widget? child) {
-        return Theme(
-          data: Theme.of(context).copyWith(
-            colorScheme: const ColorScheme.light(
-              primary: Colors.blue, // 主色
-              onPrimary: Colors.white, // 文字颜色
-              onSurface: Colors.black, // 表面颜色
-            ),
-            textButtonTheme: TextButtonThemeData(
-              style: TextButton.styleFrom(
-                foregroundColor: Colors.blue, // 按钮文字颜色
-              ),
-            ),
-          ),
-          child: child!,
-        );
-      },
-    );
-
-    if (pickedDate != null && pickedDate != selectedDate) {
-      setState(() {
-        selectedDate = pickedDate;
-        print("pickedDate=====$pickedDate");
-      });
-    }
-  }
+// void _showBottomSheet() {
+//   showModalBottomSheet(
+//     context: context,
+//     backgroundColor: Colors.transparent,
+//     isScrollControlled: true,
+//     builder: (BuildContext context) {
+//       return Container(
+//         width: 351,
+//         height: 312,
+//         decoration: BoxDecoration(
+//           color: Colors.white,
+//           borderRadius: BorderRadius.circular(32),
+//         ),
+//         child: Column(
+//           mainAxisAlignment: MainAxisAlignment.center,
+//           children: List.generate(AppUtils.getOptionsData().length, (index) {
+//             return GestureDetector(
+//               onTap: () {
+//                 setState(() {
+//                   repeat = index;
+//                 });
+//                 Navigator.pop(context);
+//               },
+//               child: Container(
+//                 margin: const EdgeInsets.symmetric(vertical: 8.0),
+//                 padding: const EdgeInsets.symmetric(
+//                     vertical: 12.0, horizontal: 20),
+//                 width: double.infinity,
+//                 decoration: BoxDecoration(
+//                   color: repeat == index
+//                       ? Color(0xFFF1F5F9)
+//                       : Colors.transparent,
+//                   borderRadius: BorderRadius.circular(20),
+//                 ),
+//                 child: Center(
+//                   child: Text(
+//                     AppUtils.getOptionsData()[index],
+//                     style: TextStyle(
+//                       color: repeat == index
+//                           ? Color(0xFF1E293B)
+//                           : Color(0xFF999999),
+//                       fontSize: 16,
+//                       fontWeight: FontWeight.w500,
+//                     ),
+//                   ),
+//                 ),
+//               ),
+//             );
+//           }),
+//         ),
+//       );
+//     },
+//   );
+// }
+//
+// Future<void> _selectDate(BuildContext context) async {
+//   final DateTime? pickedDate = await showDatePicker(
+//     context: context,
+//     initialDate: DateTime.now().add(const Duration(days: 1)),
+//     // 初始日期为明天
+//     firstDate: DateTime.now().add(const Duration(days: 1)),
+//     // 最早日期为明天
+//     lastDate: DateTime(2100),
+//     // 设置一个合理的未来日期
+//     builder: (BuildContext context, Widget? child) {
+//       return Theme(
+//         data: Theme.of(context).copyWith(
+//           colorScheme: const ColorScheme.light(
+//             primary: Colors.blue, // 主色
+//             onPrimary: Colors.white, // 文字颜色
+//             onSurface: Colors.black, // 表面颜色
+//           ),
+//           textButtonTheme: TextButtonThemeData(
+//             style: TextButton.styleFrom(
+//               foregroundColor: Colors.blue, // 按钮文字颜色
+//             ),
+//           ),
+//         ),
+//         child: child!,
+//       );
+//     },
+//   );
+//
+//   if (pickedDate != null && pickedDate != selectedDate) {
+//     setState(() {
+//       selectedDate = pickedDate;
+//       print("pickedDate=====$pickedDate");
+//     });
+//   }
+// }
 }
 
 class CustomCircle extends StatelessWidget {
