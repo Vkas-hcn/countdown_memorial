@@ -142,7 +142,7 @@ class _WelcomeScreenState extends State<EditPageScreen> {
     );
     EventManager.updateEvent(event);
     Fluttertoast.showToast(msg: "The modification was successful");
-    backToNextPaper();
+    Navigator.pop(context);
   }
 
   Future<void> _pickImage() async {
