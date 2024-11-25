@@ -7,7 +7,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
-import '../bean/EventManager.dart';
+import '../ad/ShowAdFun.dart';
 import '../we/CountdownTimer.dart';
 import '../we/CountdownTimer2.dart';
 import '../we/CountdownTimer3.dart';
@@ -158,7 +158,59 @@ class AppUtils {
   static List<String> getOptionsData() {
     return options;
   }
+  static ShowAdFun getMobUtils(BuildContext context) {
+    final adManager = ShowAdFun(context);
+    return adManager;
+  }
 
+  static Future<void> showScanAd(
+      BuildContext context,
+      AdWhere adPosition,
+      int moreTime,
+      Function() loadingFun,
+      Function() nextFun,
+      ) async {
+    final Completer<void> completer = Completer<void>();
+    var isCancelled = false;
+
+    void cancel() {
+      isCancelled = true;
+      completer.complete();
+    }
+
+    Future<void> _checkAndShowAd() async {
+      bool colckState = await ShowAdFun.blacklistBlocking();
+      if (colckState) {
+        nextFun();
+        return;
+      }
+      if (!getMobUtils(context).canShowAd(adPosition)) {
+        getMobUtils(context).loadAd(adPosition);
+      }
+
+      if (getMobUtils(context).canShowAd(adPosition)) {
+        loadingFun();
+        getMobUtils(context).showAd(context, adPosition, nextFun);
+        return;
+      }
+      if (!isCancelled) {
+        await Future.delayed(const Duration(milliseconds: 500));
+        await _checkAndShowAd();
+      }
+    }
+
+    Future.delayed( Duration(seconds: moreTime), cancel);
+    await Future.any([
+      _checkAndShowAd(),
+      completer.future,
+    ]);
+
+    if (!completer.isCompleted) {
+      return;
+    }
+    print("插屏广告展示超时");
+    nextFun();
+  }
   // 本地图片数组
   static List<String> images = [
     'assets/img/bg_1.webp',

@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
+import 'ad/LoadingOverlay.dart';
+import 'ad/ShowAdFun.dart';
 import 'bean/Event.dart';
 import 'bean/EventManager.dart';
 
@@ -39,15 +41,34 @@ class _WelcomeScreenState extends State<EditPageScreen> {
   DateTime selectedDate = DateTime.now();
   Event? events;
   String formattedDate = "";
-
+  late ShowAdFun adManager;
+  final LoadingOverlay _loadingOverlay = LoadingOverlay();
   @override
   void initState() {
     super.initState();
     WidgetsFlutterBinding.ensureInitialized();
     setUiData();
     nameController.addListener(showWeightController);
+    adManager = AppUtils.getMobUtils(context);
   }
-
+  void showAdNextPaper(AdWhere adWhere,Function() nextJump) async {
+    if (!adManager.canShowAd(adWhere)) {
+      adManager.loadAd(adWhere);
+    }
+    setState(() {
+      _loadingOverlay.show(context);
+    });
+    AppUtils.showScanAd(context, adWhere, 5, () {
+      setState(() {
+        _loadingOverlay.hide();
+      });
+    }, () {
+      setState(() {
+        _loadingOverlay.hide();
+      });
+      nextJump();
+    });
+  }
   void setUiData() {
     setState(() {
       events = widget.event;
@@ -84,10 +105,10 @@ class _WelcomeScreenState extends State<EditPageScreen> {
   }
 
   void backToNextPaper() async {
+    showAdNextPaper(AdWhere.BACKINT,(){
       Navigator.pop(context);
+    });
   }
-
-
 
   void deleteIntakeById(int timestamp) {
     setState(() {
@@ -121,7 +142,7 @@ class _WelcomeScreenState extends State<EditPageScreen> {
     );
     EventManager.updateEvent(event);
     Fluttertoast.showToast(msg: "The modification was successful");
-    backToNextPaper();
+    Navigator.pop(context);
   }
 
   Future<void> _pickImage() async {
@@ -525,7 +546,9 @@ class _WelcomeScreenState extends State<EditPageScreen> {
                   padding: const EdgeInsets.only(top: 16),
                   child: GestureDetector(
                     onTap: () {
-                      saveData();
+                      showAdNextPaper(AdWhere.SAVE, () {
+                        saveData();
+                      });
                     },
                     child: Container(
                       width: 243,

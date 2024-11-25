@@ -1,8 +1,11 @@
 import 'package:countdown_memorial/AddDate.dart';
 import 'package:countdown_memorial/utils/AppUtils.dart';
 import 'package:countdown_memorial/utils/LocalStorage.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 import 'package:provider/provider.dart';
 
@@ -11,6 +14,8 @@ import 'gg/Get2Data.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  MobileAds.instance.initialize();
+
   LocalStorage().init();
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp])
       .then((_) {
@@ -46,14 +51,19 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
+    initializeApp();
     print("object=================main");
-
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      // final adUtils = Provider.of<Get2Data>(context, listen: false);
-      // Get2Data.initializeFqaId();
-      // adUtils.getBlackList(context);
+      final adUtils = Provider.of<Get2Data>(context, listen: false);
+      Get2Data.initializeFqaId();
+      adUtils.getBlackList(context);
       pageToHome();
     });
+  }
+
+  Future<void> initializeApp() async {
+    await Firebase.initializeApp();
+    FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterError;
   }
 
   void pageToHome() {

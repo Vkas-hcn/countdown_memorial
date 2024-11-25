@@ -7,6 +7,8 @@ import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
+import 'ad/LoadingOverlay.dart';
+import 'ad/ShowAdFun.dart';
 import 'bean/Event.dart';
 import 'bean/EventManager.dart';
 
@@ -36,7 +38,8 @@ class _WelcomeScreenState extends State<AddDateScreen> {
   int styleCount = 1;
   int repeat = 0;
   DateTime selectedDate = DateTime.now();
-
+  late ShowAdFun adManager;
+  final LoadingOverlay _loadingOverlay = LoadingOverlay();
   @override
   void initState() {
     super.initState();
@@ -46,9 +49,29 @@ class _WelcomeScreenState extends State<AddDateScreen> {
     });
     nameController.addListener(showWeightController);
     nameController.text = "";
+    adManager = AppUtils.getMobUtils(context);
+
   }
 
   void setUiData() {}
+  void showAdNextPaper(AdWhere adWhere, Function() nextJump) async {
+    if (!adManager.canShowAd(adWhere)) {
+      adManager.loadAd(adWhere);
+    }
+    setState(() {
+      _loadingOverlay.show(context);
+    });
+    AppUtils.showScanAd(context, adWhere, 5, () {
+      setState(() {
+        _loadingOverlay.hide();
+      });
+    }, () {
+      setState(() {
+        _loadingOverlay.hide();
+      });
+      nextJump();
+    });
+  }
 
   @override
   void dispose() {
@@ -476,7 +499,9 @@ class _WelcomeScreenState extends State<AddDateScreen> {
                   padding: const EdgeInsets.only(top: 16),
                   child: GestureDetector(
                     onTap: () {
-                      saveData();
+                      showAdNextPaper(AdWhere.SAVE, () {
+                        saveData();
+                      });
                     },
                     child: Container(
                       width: 243,

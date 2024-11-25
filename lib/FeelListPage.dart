@@ -3,6 +3,8 @@ import 'package:countdown_memorial/utils/AppUtils.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
+import 'ad/LoadingOverlay.dart';
+import 'ad/ShowAdFun.dart';
 import 'bean/Event.dart';
 
 class FeelListPage extends StatelessWidget {
@@ -35,6 +37,8 @@ class _FeelListPageState extends State<FeelListPageScreen> {
   int repeat = 1;
   DateTime selectedDate = DateTime.now();
   Event? events;
+  late ShowAdFun adManager;
+  final LoadingOverlay _loadingOverlay = LoadingOverlay();
 
   @override
   void initState() {
@@ -42,7 +46,27 @@ class _FeelListPageState extends State<FeelListPageScreen> {
     WidgetsFlutterBinding.ensureInitialized();
     nameController.addListener(showWeightController);
     nameController.text = "";
+    adManager = AppUtils.getMobUtils(context);
     setUiData();
+  }
+
+  void showAdNextPaper(AdWhere adWhere,Function() nextJump) async {
+    if (!adManager.canShowAd(adWhere)) {
+      adManager.loadAd(adWhere);
+    }
+    setState(() {
+      _loadingOverlay.show(context);
+    });
+    AppUtils.showScanAd(context, adWhere, 5, () {
+      setState(() {
+        _loadingOverlay.hide();
+      });
+    }, () {
+      setState(() {
+        _loadingOverlay.hide();
+      });
+      nextJump();
+    });
   }
 
   void setUiData() async {
@@ -62,7 +86,9 @@ class _FeelListPageState extends State<FeelListPageScreen> {
   }
 
   void backToNextPaper() async {
-    Navigator.pop(context);
+    showAdNextPaper(AdWhere.BACKINT,  () {
+      Navigator.pop(context);
+    });
   }
 
   void deleteIntakeById(int timestamp) {
@@ -144,16 +170,18 @@ class _FeelListPageState extends State<FeelListPageScreen> {
                     itemBuilder: (context, index) {
                       return GestureDetector(
                         onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => AddFeelPage(
-                                      event: events!,
-                                      timestamp: events!.feelings[index].time,
-                                    )),
-                          ).then((value) {
-                            setState(() {
-                              setUiData();
+                          showAdNextPaper(AdWhere.SAVE,() {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => AddFeelPage(
+                                        event: events!,
+                                        timestamp: events!.feelings[index].time,
+                                      )),
+                            ).then((value) {
+                              setState(() {
+                                setUiData();
+                              });
                             });
                           });
                         },

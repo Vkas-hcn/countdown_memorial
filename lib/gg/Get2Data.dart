@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
@@ -9,7 +10,7 @@ import 'package:http/http.dart' as http;
 
 class Get2Data with ChangeNotifier {
   static const String BLACK_URL =
-      "https://cap.healthkeeperhydration.com/umber/law/cribbage";
+      "https://injure.milestonemarker.com/wardrobe/coronado";
   static String fqaId = "";
 
   static String getUUID() {
@@ -32,22 +33,20 @@ class Get2Data with ChangeNotifier {
     }
     final mapData = await cloakMapData(context);
     try {
-      final response = await getMapData(BLACK_URL, mapData);
-      LocalStorage().setValue(LocalStorage.clockData,response);
+      final response = await postMapData(BLACK_URL, mapData);
+      LocalStorage().setValue(LocalStorage.clockData, response);
       notifyListeners();
     } catch (error) {
       retry(context);
     }
   }
 
-
   Future<Map<String, dynamic>> cloakMapData(BuildContext context) async {
     return {
-      "fusty": "com.daily.waterreminder.healthylife",
-      "afford": "quagmire",
-      "toefl": await getAppVersion(context),
-      "perseid": fqaId,
-      "brink": DateTime.now().millisecondsSinceEpoch,
+      "eer": "com.countdown.memory.keeper",
+      "eyebrow": "survive",
+      "purport": await getAppVersion(context),
+      "shrilly": DateTime.now().millisecondsSinceEpoch,
     };
   }
 
@@ -56,24 +55,28 @@ class Get2Data with ChangeNotifier {
     return packageInfo.version;
   }
 
-  Future<String> getMapData(String url, Map<String, dynamic> map) async {
+  Future<String> postMapData(String url, Map<String, dynamic> map) async {
     print("开始请求---${map}");
-    final queryParameters = map.entries
-        .map((entry) =>
-    '${Uri.encodeComponent(entry.key)}=${Uri.encodeComponent(entry.value.toString())}')
-        .join('&');
 
-    final urlString =
-    url.contains("?") ? "$url&$queryParameters" : "$url?$queryParameters";
-    final response = await http.get(Uri.parse(urlString));
+    try {
+      final response = await http.post(
+        Uri.parse(url),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode(map),
+      );
 
-    if (response.statusCode == 200) {
-      print("请求结果：${response.body}");
-      return response.body;
-    } else {
-      print("请求出错：HTTP error: ${response.statusCode}");
-
-      throw HttpException('HTTP error: ${response.statusCode}');
+      if (response.statusCode == 200) {
+        print("请求结果：${response.body}");
+        return response.body;
+      } else {
+        print("请求出错：HTTP error: ${response.statusCode}");
+        throw HttpException('HTTP error: ${response.statusCode}');
+      }
+    } catch (e) {
+      print("请求异常：$e");
+      throw e;
     }
   }
 
@@ -82,3 +85,4 @@ class Get2Data with ChangeNotifier {
     await getBlackList(context);
   }
 }
+

@@ -13,6 +13,8 @@ class LocalStorage {
   static String userBmiList = "userBmiList";
 
   static String clockData = "clockData";
+  static String umpState = "umpState";
+
   static bool isInBack = false;
   static bool int_ad_show = false;
   static bool clone_ad = false;

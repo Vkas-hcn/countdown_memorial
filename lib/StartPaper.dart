@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'MainApp.dart';
+import 'ad/ShowAdFun.dart';
 import 'gg/LoadingOverlay.dart';
 
 class StartPaper extends StatelessWidget {
@@ -31,12 +32,14 @@ class _WelcomeScreenState extends State<WelcomeScreen>
     with SingleTickerProviderStateMixin {
   final netController = TextEditingController();
   final LoadingOverlay _loadingOverlay = LoadingOverlay();
+  late ShowAdFun adManager;
+
   @override
   void initState() {
     super.initState();
     netController.addListener(showCreteBut);
     netController.text = "1500";
-
+    adManager = AppUtils.getMobUtils(context);
   }
 
   @override
@@ -48,13 +51,34 @@ class _WelcomeScreenState extends State<WelcomeScreen>
   void showCreteBut() async {
     netController.text.trim();
   }
-  void saveToNextPaper() async {
-    Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(builder: (context) => const AddDate(type: 0)),
-            (route) => route == null);
+
+  void showAdNextPaper(AdWhere adWhere, Function() nextJump) async {
+    if (!adManager.canShowAd(adWhere)) {
+      adManager.loadAd(adWhere);
+    }
+    setState(() {
+      _loadingOverlay.show(context);
+    });
+    AppUtils.showScanAd(context, adWhere, 5, () {
+      setState(() {
+        _loadingOverlay.hide();
+      });
+    }, () {
+      setState(() {
+        _loadingOverlay.hide();
+      });
+      nextJump();
+    });
   }
 
+  void saveToNextPaper() async {
+    showAdNextPaper(AdWhere.SAVE, () {
+      Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => const AddDate(type: 0)),
+          (route) => route == null);
+    });
+  }
 
   void jumpToHome() {
     Navigator.pushAndRemoveUntil(
@@ -81,14 +105,14 @@ class _WelcomeScreenState extends State<WelcomeScreen>
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-                Padding(
-                  padding: const EdgeInsets.only(top: 430.0,left: 20,right: 20),
-                  child: SizedBox(
-                    width: double.infinity,
-                    height: 32,
-                    child: Image.asset('assets/img/icon_add_tip.webp'),
-                  ),
+              Padding(
+                padding: const EdgeInsets.only(top: 430.0, left: 20, right: 20),
+                child: SizedBox(
+                  width: double.infinity,
+                  height: 32,
+                  child: Image.asset('assets/img/icon_add_tip.webp'),
                 ),
+              ),
               Padding(
                 padding: const EdgeInsets.only(top: 103),
                 child: GestureDetector(
