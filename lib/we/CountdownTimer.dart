@@ -27,7 +27,6 @@ class _CountdownTimerState extends State<CountdownTimer> {
   @override
   void didUpdateWidget(covariant CountdownTimer oldWidget) {
     super.didUpdateWidget(oldWidget);
-    // 当时间戳改变时，重新初始化倒计时
     if (oldWidget.timestampInSeconds != widget.timestampInSeconds) {
       _initializeCountdown();
     }
@@ -92,8 +91,6 @@ class _CountdownTimerState extends State<CountdownTimer> {
   Widget _buildTimeWithBackground(String time, String unit) {
     return Container(
       height: 36,
-      padding: const EdgeInsets.all(4),
-      margin: const EdgeInsets.symmetric(horizontal: 4),
       decoration: BoxDecoration(
         color: Colors.transparent,
         image: const DecorationImage(

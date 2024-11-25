@@ -117,7 +117,9 @@ class _WelcomeScreenState extends State<AddDateScreen> {
     final XFile? image = await picker.pickImage(source: ImageSource.gallery);
 
     if (image != null) {
-      AppUtils.addImageToTop(image.path);
+      String persistentImagePath =
+          await AppUtils.saveImageToPersistentStorage(image.path);
+      AppUtils.addImageToTop(persistentImagePath);
       setState(() {
         AppUtils.getBgImageView();
       });
@@ -343,45 +345,6 @@ class _WelcomeScreenState extends State<AddDateScreen> {
                     ],
                   ),
                 ),
-                // Padding(
-                //   padding: const EdgeInsets.only(top: 32, right: 20, left: 20),
-                //   child: GestureDetector(
-                //     onTap: () {
-                //       _showBottomSheet();
-                //     },
-                //     child: Container(
-                //       child: Row(
-                //         children: [
-                //           SizedBox(
-                //             width: 32,
-                //             height: 32,
-                //             child: Image.asset('assets/img/icon_repeat.webp'),
-                //           ),
-                //           SizedBox(width: 12),
-                //           const Text(
-                //             'Repeat',
-                //             style: TextStyle(
-                //               fontSize: 14,
-                //               color: Color(0xFF999999),
-                //             ),
-                //           ),
-                //           Spacer(),
-                //           Text(
-                //             AppUtils.getOptionsData()[repeat],
-                //             style: const TextStyle(
-                //               fontSize: 14,
-                //               color: Color(0xFF1E293B),
-                //             ),
-                //           ),
-                //           const Icon(
-                //             Icons.keyboard_arrow_right,
-                //             color: Color(0xFF999999),
-                //           )
-                //         ],
-                //       ),
-                //     ),
-                //   ),
-                // ),
                 Padding(
                   padding: const EdgeInsets.only(top: 32, right: 20, left: 20),
                   child: Container(

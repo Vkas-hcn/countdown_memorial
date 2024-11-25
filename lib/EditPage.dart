@@ -129,7 +129,9 @@ class _WelcomeScreenState extends State<EditPageScreen> {
     final XFile? image = await picker.pickImage(source: ImageSource.gallery);
 
     if (image != null) {
-      AppUtils.addImageToTop(image.path);
+      String persistentImagePath =
+      await AppUtils.saveImageToPersistentStorage(image.path);
+      AppUtils.addImageToTop(persistentImagePath);
       setState(() {
         AppUtils.getBgImageView();
       });

@@ -85,7 +85,6 @@ class _CountdownTimerState extends State<CountdownTimer2> {
   Widget _buildTimeWithBackground(String time, String unit) {
     return Container(
       height: 46,
-      margin: const EdgeInsets.symmetric(horizontal: 4),
       decoration: BoxDecoration(
         color: Colors.transparent,
         image: const DecorationImage(

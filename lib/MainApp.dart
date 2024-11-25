@@ -47,7 +47,7 @@ class _MainPageState extends State<MainPage> {
         return true;
       },
       child: Scaffold(
-        resizeToAvoidBottomInset: false, // 禁止键盘弹出时调整布局
+        resizeToAvoidBottomInset: false,
         backgroundColor: Colors.white,
         body: Column(
           children: [
@@ -61,11 +61,11 @@ class _MainPageState extends State<MainPage> {
                 Image.asset(
                   'assets/img/icon_main_btn.webp',
                   width: double.infinity,
-                  height: 100,
+                  height: 140,
                   fit: BoxFit.cover,
                 ),
                 Container(
-                  height: 100,
+                  height: 140,
                   color: Colors.transparent,
                   child: BottomNavigationBar(
                     backgroundColor: Colors.transparent,
@@ -85,8 +85,8 @@ class _MainPageState extends State<MainPage> {
                           offset: const Offset(0, -32),
                           child: Image.asset(
                             'assets/img/icon_main_add_2.webp',
-                            width: 65,
-                            height: 65,
+                            width: 70,
+                            height: 70,
                           ),
                         ),
                         label: '',
