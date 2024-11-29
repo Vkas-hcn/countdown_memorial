@@ -14,7 +14,7 @@
 	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
-	<key>CFBundleName</key>shang
+	<key>CFBundleName</key>
 	<string>countdown_memorial</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
@@ -47,5 +47,24 @@
 	</array>
 	<key>NSPhotoLibraryUsageDescription</key>
     <string>This app requires access to your photo album to change the countdown background image.</string>
+<key>GADApplicationIdentifier</key>
+<string>ca-app-pub-1840449822554388~1053504511</string>
+
+<key>CFBundleURLTypes</key>
+<array>
+  <dict>
+  <key>CFBundleURLSchemes</key>
+  <array>
+    <string>fb1801478173935189</string>
+  </array>
+  </dict>
+</array>
+<key>FacebookAppID</key>
+<string>1801478173935189</string>
+<key>FacebookClientToken</key>
+<string>6c38d0b25beb35c6a2254ed436217df5</string>
+<key>FacebookDisplayName</key>
+<string>Milestone Marker</string>
+
 </dict>
 </plist>

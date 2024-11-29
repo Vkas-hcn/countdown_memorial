@@ -2,7 +2,6 @@ import 'package:countdown_memorial/AddDate.dart';
 import 'package:countdown_memorial/utils/AppUtils.dart';
 import 'package:countdown_memorial/utils/LocalStorage.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
@@ -63,7 +62,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Future<void> initializeApp() async {
     await Firebase.initializeApp();
-    FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterError;
+    // FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterError;
   }
 
   void pageToHome() {

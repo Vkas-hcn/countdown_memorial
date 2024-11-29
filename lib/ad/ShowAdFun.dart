@@ -12,9 +12,13 @@ enum AdWhere {
 
 class ShowAdFun {
   static final ShowAdFun _instance = ShowAdFun._internal();
-  static const String openId = "ca-app-pub-3940256099942544/9257395921";
-  static const String backIntId = "ca-app-pub-3940256099942544/8691691433";
-  static const String saveId = "ca-app-pub-3940256099942544/8691691433";
+  static const String openId = "ca-app-pub-1840449822554388/5252705606";
+  static const String backIntId = "ca-app-pub-1840449822554388/1121888901";
+  static const String saveId = "ca-app-pub-1840449822554388/7551737329";
+
+  // static const String openId = "ca-app-pub-3940256099942544/9257395921";
+  // static const String backIntId = "ca-app-pub-3940256099942544/8691691433";
+  // static const String saveId = "ca-app-pub-3940256099942544/8691691433";
 
   factory ShowAdFun(BuildContext context) {
     return _instance;
@@ -36,28 +40,28 @@ class ShowAdFun {
 
   void loadAd(AdWhere adPosition) async {
     if (adPosition == AdWhere.OPEN && _isAppOpenAdLoading) {
-      print("$adPosition广告加载中");
+      // print("$adPosition广告加载中");
       return;
     }
     if (adPosition == AdWhere.BACKINT && isBackAdLoading) {
-      print("$adPosition广告加载中");
+      // print("$adPosition广告加载中");
       return;
     }
     if (adPosition == AdWhere.SAVE && isSaveAdLoading) {
-      print("$adPosition广告加载中");
+      // print("$adPosition广告加载中");
       return;
     }
     if (canMoreAd(adPosition)) {
-      print("广告缓存已过期");
+      // print("广告缓存已过期");
       clearAdCache(adPosition);
     }
     if (canShowAd(adPosition)) {
-      print("已有$adPosition广告缓存,不再加载");
+      // print("已有$adPosition广告缓存,不再加载");
       return;
     }
     bool colckState = await blacklistBlocking();
     if (colckState && adPosition != AdWhere.OPEN) {
-      print("$adPosition广告黑名单屏蔽");
+      // print("$adPosition广告黑名单屏蔽");
       return;
     }
 
@@ -76,20 +80,20 @@ class ShowAdFun {
 
   void _loadAppOpenAdWithRetry() {
     _isAppOpenAdLoading = true;
-    print("加载open广告 id=$openId");
+    // print("加载open广告 id=$openId");
     AppOpenAd.load(
       adUnitId: openId,
       request: AdRequest(),
       adLoadCallback: AppOpenAdLoadCallback(
         onAdLoaded: (ad) {
-          print("open广告加载成功");
+          // print("open广告加载成功");
           adLoadTimes = DateTime.now().millisecondsSinceEpoch;
           _appOpenAd = ad;
           _isAppOpenAdLoading = false;
           isFistOpen = false;
         },
         onAdFailedToLoad: (error) {
-          print('open广告加载失败: $error');
+          // print('open广告加载失败: $error');
           _isAppOpenAdLoading = false;
           _appOpenAd = null;
           if (!isFistOpen) {
@@ -104,19 +108,19 @@ class ShowAdFun {
 
   void _loadAppOpenIntAdWithRetry() {
     _isAppOpenAdLoading = true;
-    print("加载back-int广告 id=$openId");
+    // print("加载back-int广告 id=$openId");
     InterstitialAd.load(
       adUnitId: backIntId,
       request: const AdRequest(),
       adLoadCallback: InterstitialAdLoadCallback(
         onAdLoaded: (ad) {
-          print("加载back-int广告加载成功");
+          // print("加载back-int广告加载成功");
           adLoadTimes = DateTime.now().millisecondsSinceEpoch;
           _appBackAdInt = ad;
           _isAppOpenAdLoading = false;
         },
         onAdFailedToLoad: (error) {
-          print("加载back-int广告加载失败：${error}");
+          // print("加载back-int广告加载失败：${error}");
           _isAppOpenAdLoading = false;
           _appBackAdInt = null;
           if (!isFistOpen) {
@@ -132,19 +136,19 @@ class ShowAdFun {
     isSaveAdLoading = true;
     String intId = "";
     intId = saveId;
-    print("加载$adPosition广告 id=${intId}");
+    // print("加载$adPosition广告 id=${intId}");
     InterstitialAd.load(
       adUnitId: intId,
       request: const AdRequest(),
       adLoadCallback: InterstitialAdLoadCallback(
         onAdLoaded: (ad) {
-          print("加载${adPosition}广告加载成功");
+          // print("加载${adPosition}广告加载成功");
           adLoadTimes = DateTime.now().millisecondsSinceEpoch;
           _interstitialAd = ad;
           isSaveAdLoading = false;
         },
         onAdFailedToLoad: (error) {
-          print("加载${adPosition}广告加载失败：${error}");
+          // print("加载${adPosition}广告加载失败：${error}");
           isSaveAdLoading = false;
           _interstitialAd = null;
         },
@@ -180,7 +184,7 @@ class ShowAdFun {
   void showAd(
       BuildContext context, AdWhere adPosition, Function() cloneWindow) async {
     if (LocalStorage.isInBack) {
-      print("后台不展示广告");
+      // print("后台不展示广告");
       return;
     }
     adCall(adPosition, cloneWindow);
@@ -212,7 +216,7 @@ class ShowAdFun {
 
   void closeAppOpenAd() {
     if (_appOpenAd != null) {
-      print("主动关闭广告");
+      // print("主动关闭广告");
       _appOpenAd!.fullScreenContentCallback!
           .onAdDismissedFullScreenContent!(_appOpenAd!);
     }
@@ -222,22 +226,22 @@ class ShowAdFun {
     if (_appOpenAd != null) {
       _appOpenAd?.fullScreenContentCallback = FullScreenContentCallback(
         onAdDismissedFullScreenContent: (AppOpenAd ad) {
-          print("关闭open广告");
+          // print("关闭open广告");
           LocalStorage.int_ad_show = false;
           LocalStorage.clone_ad = true;
           cloneWindow();
           ad.dispose();
         },
         onAdWillDismissFullScreenContent: (AppOpenAd ad) {
-          print("即将关闭open广告");
+          // print("即将关闭open广告");
         },
         onAdShowedFullScreenContent: (AppOpenAd ad) {
           LocalStorage.int_ad_show = true;
           _appOpenAd = null;
-          print("展示open广告");
+          // print("展示open广告");
         },
         onAdClicked: (AppOpenAd ad) {
-          print("点击open广告");
+          // print("点击open广告");
         },
       );
     }
@@ -254,17 +258,19 @@ class ShowAdFun {
         },
         onAdShowedFullScreenContent: (InterstitialAd ad) {
           _appBackAdInt = null;
-          print("展示$adPosition插屏广告");
+          LocalStorage.int_ad_show = true;
+          // print("展示$adPosition插屏广告");
         },
         onAdClicked: (InterstitialAd ad) {
-          print("点击$adPosition广告");
+          // print("点击$adPosition广告");
         },
       );
     }
     if (_interstitialAd != null) {
       _interstitialAd?.fullScreenContentCallback = FullScreenContentCallback(
         onAdDismissedFullScreenContent: (InterstitialAd ad) {
-          print("关闭$adPosition插屏广告");
+          // print("关闭$adPosition插屏广告");
+          LocalStorage.int_ad_show = false;
           LocalStorage.clone_ad = true;
           ad.dispose();
           loadAd(adPosition);
@@ -275,10 +281,11 @@ class ShowAdFun {
         },
         onAdShowedFullScreenContent: (InterstitialAd ad) {
           _interstitialAd = null;
-          print("展示$adPosition插屏广告");
+          LocalStorage.int_ad_show = true;
+          // print("展示$adPosition插屏广告");
         },
         onAdClicked: (InterstitialAd ad) {
-          print("点击$adPosition广告");
+          // print("点击$adPosition广告");
         },
       );
     }
@@ -286,7 +293,7 @@ class ShowAdFun {
 
   static Future<bool> blacklistBlocking() async {
     String? data = await LocalStorage().getValue(LocalStorage.clockData);
-    if (data != "graph") {
+    if (data != "pacify") {
       return true;
     }
     return false;

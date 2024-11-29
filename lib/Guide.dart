@@ -205,6 +205,7 @@ Future<void> requestConsentInfoUpdate() async {
     if (_pausedTime != null) {
       final timeInBackground =
           DateTime.now().difference(_pausedTime!).inSeconds;
+      print("_handleAppResumed==LocalStorage.clone_ad=${LocalStorage.clone_ad}----LocalStorage.int_ad_show=${LocalStorage.int_ad_show}");
       if (LocalStorage.clone_ad == true) {
         return;
       }
@@ -216,6 +217,7 @@ Future<void> requestConsentInfoUpdate() async {
   }
 
   void _handleAppPaused() {
+    print("_handleAppPaused------------");
     LocalStorage.isInBack = true;
     LocalStorage.clone_ad = false;
     _pausedTime = DateTime.now();

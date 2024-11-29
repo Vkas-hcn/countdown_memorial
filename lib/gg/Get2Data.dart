@@ -44,7 +44,7 @@ class Get2Data with ChangeNotifier {
   Future<Map<String, dynamic>> cloakMapData(BuildContext context) async {
     return {
       "eer": "com.countdown.memory.keeper",
-      "eyebrow": "survive",
+      "eyebrow": "pivotal",
       "purport": await getAppVersion(context),
       "shrilly": DateTime.now().millisecondsSinceEpoch,
     };
