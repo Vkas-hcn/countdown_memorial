@@ -124,7 +124,6 @@ class AppUtils {
     }
   }
 
-
   static Future<Image> getImagePath(String name) async {
     if (name.startsWith('assets/')) {
       return Image.asset(
@@ -139,7 +138,6 @@ class AppUtils {
       );
     }
   }
-
 
   //返回倒计时组件
   static Widget getCountDownWidget(int slete, String time) {
@@ -158,59 +156,61 @@ class AppUtils {
   static List<String> getOptionsData() {
     return options;
   }
-  static ShowAdFun getMobUtils(BuildContext context) {
-    final adManager = ShowAdFun(context);
-    return adManager;
-  }
+  //
+  // static ShowAdFun getMobUtils(BuildContext context) {
+  //   final adManager = ShowAdFun(context);
+  //   return adManager;
+  // }
+  //
+  // static Future<void> showScanAd(
+  //   BuildContext context,
+  //   AdWhere adPosition,
+  //   int moreTime,
+  //   Function() loadingFun,
+  //   Function() nextFun,
+  // ) async {
+  //   final Completer<void> completer = Completer<void>();
+  //   var isCancelled = false;
+  //
+  //   void cancel() {
+  //     isCancelled = true;
+  //     completer.complete();
+  //   }
+  //
+  //   Future<void> _checkAndShowAd() async {
+  //     bool colckState = await ShowAdFun.blacklistBlocking();
+  //     if (colckState) {
+  //       nextFun();
+  //       return;
+  //     }
+  //     if (!getMobUtils(context).canShowAd(adPosition)) {
+  //       getMobUtils(context).loadAd(adPosition);
+  //     }
+  //
+  //     if (getMobUtils(context).canShowAd(adPosition)) {
+  //       loadingFun();
+  //       getMobUtils(context).showAd(context, adPosition, nextFun);
+  //       return;
+  //     }
+  //     if (!isCancelled) {
+  //       await Future.delayed(const Duration(milliseconds: 500));
+  //       await _checkAndShowAd();
+  //     }
+  //   }
+  //
+  //   Future.delayed(Duration(seconds: moreTime), cancel);
+  //   await Future.any([
+  //     _checkAndShowAd(),
+  //     completer.future,
+  //   ]);
+  //
+  //   if (!completer.isCompleted) {
+  //     return;
+  //   }
+  //   print("插屏广告展示超时");
+  //   nextFun();
+  // }
 
-  static Future<void> showScanAd(
-      BuildContext context,
-      AdWhere adPosition,
-      int moreTime,
-      Function() loadingFun,
-      Function() nextFun,
-      ) async {
-    final Completer<void> completer = Completer<void>();
-    var isCancelled = false;
-
-    void cancel() {
-      isCancelled = true;
-      completer.complete();
-    }
-
-    Future<void> _checkAndShowAd() async {
-      bool colckState = await ShowAdFun.blacklistBlocking();
-      if (colckState) {
-        nextFun();
-        return;
-      }
-      if (!getMobUtils(context).canShowAd(adPosition)) {
-        getMobUtils(context).loadAd(adPosition);
-      }
-
-      if (getMobUtils(context).canShowAd(adPosition)) {
-        loadingFun();
-        getMobUtils(context).showAd(context, adPosition, nextFun);
-        return;
-      }
-      if (!isCancelled) {
-        await Future.delayed(const Duration(milliseconds: 500));
-        await _checkAndShowAd();
-      }
-    }
-
-    Future.delayed( Duration(seconds: moreTime), cancel);
-    await Future.any([
-      _checkAndShowAd(),
-      completer.future,
-    ]);
-
-    if (!completer.isCompleted) {
-      return;
-    }
-    print("插屏广告展示超时");
-    nextFun();
-  }
   // 本地图片数组
   static List<String> images = [
     'assets/img/bg_1.webp',

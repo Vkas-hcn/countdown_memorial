@@ -19,12 +19,7 @@ void main() async {
   LocalStorage().init();
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp])
       .then((_) {
-    runApp(MultiProvider(providers: [
-      Provider<Get2Data>(
-        create: (_) => Get2Data(),
-      ),
-      ChangeNotifierProvider(create: (_) => Get2Data()),
-    ], child: const MyApp()));
+    runApp(const MyApp());
   });
 }
 
@@ -54,9 +49,7 @@ class _MyHomePageState extends State<MyHomePage> {
     initializeApp();
     print("object=================main");
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final adUtils = Provider.of<Get2Data>(context, listen: false);
-      Get2Data.initializeFqaId();
-      adUtils.getBlackList(context);
+
       pageToHome();
     });
   }

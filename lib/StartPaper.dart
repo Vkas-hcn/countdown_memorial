@@ -31,15 +31,12 @@ class WelcomeScreen extends StatefulWidget {
 class _WelcomeScreenState extends State<WelcomeScreen>
     with SingleTickerProviderStateMixin {
   final netController = TextEditingController();
-  final LoadingOverlay _loadingOverlay = LoadingOverlay();
-  late ShowAdFun adManager;
 
   @override
   void initState() {
     super.initState();
     netController.addListener(showCreteBut);
     netController.text = "1500";
-    adManager = AppUtils.getMobUtils(context);
   }
 
   @override
@@ -52,32 +49,11 @@ class _WelcomeScreenState extends State<WelcomeScreen>
     netController.text.trim();
   }
 
-  void showAdNextPaper(AdWhere adWhere, Function() nextJump) async {
-    if (!adManager.canShowAd(adWhere)) {
-      adManager.loadAd(adWhere);
-    }
-    setState(() {
-      _loadingOverlay.show(context);
-    });
-    AppUtils.showScanAd(context, adWhere, 5, () {
-      setState(() {
-        _loadingOverlay.hide();
-      });
-    }, () {
-      setState(() {
-        _loadingOverlay.hide();
-      });
-      nextJump();
-    });
-  }
-
   void saveToNextPaper() async {
-    showAdNextPaper(AdWhere.SAVE, () {
-      Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(builder: (context) => const AddDate(type: 0)),
-          (route) => route == null);
-    });
+    Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (context) => const AddDate(type: 0)),
+        (route) => route == null);
   }
 
   void jumpToHome() {

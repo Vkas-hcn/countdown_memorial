@@ -25,15 +25,11 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _WelcomeScreenState extends State<HomeScreen> {
-  late ShowAdFun adManager;
-  final LoadingOverlay _loadingOverlay = LoadingOverlay();
 
   @override
   void initState() {
     super.initState();
     WidgetsFlutterBinding.ensureInitialized();
-    adManager = AppUtils.getMobUtils(context);
-    adManager.loadAd(AdWhere.SAVE);
     print("Home----initState");
     getListData();
   }
@@ -62,22 +58,7 @@ class _WelcomeScreenState extends State<HomeScreen> {
   }
 
   void showAdNextPaper(int index) async {
-    if (!adManager.canShowAd(AdWhere.SAVE)) {
-      adManager.loadAd(AdWhere.SAVE);
-    }
-    setState(() {
-      _loadingOverlay.show(context);
-    });
-    AppUtils.showScanAd(context, AdWhere.SAVE, 5, () {
-      setState(() {
-        _loadingOverlay.hide();
-      });
-    }, () {
-      setState(() {
-        _loadingOverlay.hide();
-      });
       nextpage(index);
-    });
   }
 
   void nextpage(int index) {

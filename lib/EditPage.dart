@@ -41,33 +41,12 @@ class _WelcomeScreenState extends State<EditPageScreen> {
   DateTime selectedDate = DateTime.now();
   Event? events;
   String formattedDate = "";
-  late ShowAdFun adManager;
-  final LoadingOverlay _loadingOverlay = LoadingOverlay();
   @override
   void initState() {
     super.initState();
     WidgetsFlutterBinding.ensureInitialized();
     setUiData();
     nameController.addListener(showWeightController);
-    adManager = AppUtils.getMobUtils(context);
-  }
-  void showAdNextPaper(AdWhere adWhere,Function() nextJump) async {
-    if (!adManager.canShowAd(adWhere)) {
-      adManager.loadAd(adWhere);
-    }
-    setState(() {
-      _loadingOverlay.show(context);
-    });
-    AppUtils.showScanAd(context, adWhere, 5, () {
-      setState(() {
-        _loadingOverlay.hide();
-      });
-    }, () {
-      setState(() {
-        _loadingOverlay.hide();
-      });
-      nextJump();
-    });
   }
   void setUiData() {
     setState(() {
@@ -105,9 +84,7 @@ class _WelcomeScreenState extends State<EditPageScreen> {
   }
 
   void backToNextPaper() async {
-    showAdNextPaper(AdWhere.BACKINT,(){
       Navigator.pop(context);
-    });
   }
 
   void deleteIntakeById(int timestamp) {
@@ -544,9 +521,7 @@ class _WelcomeScreenState extends State<EditPageScreen> {
                   padding: const EdgeInsets.only(top: 16),
                   child: GestureDetector(
                     onTap: () {
-                      showAdNextPaper(AdWhere.SAVE, () {
                         saveData();
-                      });
                     },
                     child: Container(
                       width: 243,

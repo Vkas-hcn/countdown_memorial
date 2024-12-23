@@ -42,8 +42,6 @@ class _AddFeelPageState extends State<AddFeelPageScreen> {
   int repeat = 1;
   DateTime selectedDate = DateTime.now();
   Event? events;
-  late ShowAdFun adManager;
-  final LoadingOverlay _loadingOverlay = LoadingOverlay();
 
   @override
   void initState() {
@@ -53,7 +51,6 @@ class _AddFeelPageState extends State<AddFeelPageScreen> {
       setUiData();
     });
     nameController.addListener(showWeightController);
-    adManager = AppUtils.getMobUtils(context);
   }
 
   void setUiData() {
@@ -66,25 +63,6 @@ class _AddFeelPageState extends State<AddFeelPageScreen> {
         }
       });
     }
-  }
-
-  void showAdNextPaper(AdWhere adWhere, Function() nextJump) async {
-    if (!adManager.canShowAd(adWhere)) {
-      adManager.loadAd(adWhere);
-    }
-    setState(() {
-      _loadingOverlay.show(context);
-    });
-    AppUtils.showScanAd(context, adWhere, 5, () {
-      setState(() {
-        _loadingOverlay.hide();
-      });
-    }, () {
-      setState(() {
-        _loadingOverlay.hide();
-      });
-      nextJump();
-    });
   }
 
   @override
@@ -102,9 +80,7 @@ class _AddFeelPageState extends State<AddFeelPageScreen> {
       Navigator.pop(context);
       return;
     }
-    showAdNextPaper(AdWhere.BACKINT, () {
       Navigator.pop(context);
-    });
   }
 
   void deleteIntakeById(int timestamp) {
@@ -373,9 +349,7 @@ class _AddFeelPageState extends State<AddFeelPageScreen> {
                   padding: const EdgeInsets.only(top: 36),
                   child: GestureDetector(
                     onTap: () {
-                      showAdNextPaper(AdWhere.SAVE, () {
                         saveData();
-                      });
                     },
                     child: Container(
                       width: 243,

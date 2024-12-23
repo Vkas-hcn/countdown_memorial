@@ -38,8 +38,6 @@ class _WelcomeScreenState extends State<AddDateScreen> {
   int styleCount = 1;
   int repeat = 0;
   DateTime selectedDate = DateTime.now();
-  late ShowAdFun adManager;
-  final LoadingOverlay _loadingOverlay = LoadingOverlay();
   @override
   void initState() {
     super.initState();
@@ -49,29 +47,9 @@ class _WelcomeScreenState extends State<AddDateScreen> {
     });
     nameController.addListener(showWeightController);
     nameController.text = "";
-    adManager = AppUtils.getMobUtils(context);
-
   }
 
   void setUiData() {}
-  void showAdNextPaper(AdWhere adWhere, Function() nextJump) async {
-    if (!adManager.canShowAd(adWhere)) {
-      adManager.loadAd(adWhere);
-    }
-    setState(() {
-      _loadingOverlay.show(context);
-    });
-    AppUtils.showScanAd(context, adWhere, 5, () {
-      setState(() {
-        _loadingOverlay.hide();
-      });
-    }, () {
-      setState(() {
-        _loadingOverlay.hide();
-      });
-      nextJump();
-    });
-  }
 
   @override
   void dispose() {
@@ -85,7 +63,7 @@ class _WelcomeScreenState extends State<AddDateScreen> {
 
   void backToNextPaper() async {
     String? stringValue =
-        LocalStorage().getValue(LocalStorage.dateList) as String?;
+    LocalStorage().getValue(LocalStorage.dateList) as String?;
     if (stringValue == null) {
       saveToNextPaper();
     } else {
@@ -97,7 +75,7 @@ class _WelcomeScreenState extends State<AddDateScreen> {
     Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(builder: (context) => MainApp()),
-        (route) => route == null);
+            (route) => route == null);
   }
 
   void deleteIntakeById(int timestamp) {
@@ -140,7 +118,9 @@ class _WelcomeScreenState extends State<AddDateScreen> {
     final XFile? image = await picker.pickImage(source: ImageSource.gallery);
 
     if (image != null) {
-      AppUtils.addImageToTop(image.path);
+      String persistentImagePath =
+      await AppUtils.saveImageToPersistentStorage(image.path);
+      AppUtils.addImageToTop(persistentImagePath);
       setState(() {
         AppUtils.getBgImageView();
       });
@@ -167,34 +147,34 @@ class _WelcomeScreenState extends State<AddDateScreen> {
               mainAxisSize: MainAxisSize.max,
               children: [
                 if(widget.type==0)
-                Padding(
-                  padding: EdgeInsets.only(top: 42, left: 20, right: 20),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    mainAxisSize: MainAxisSize.max,
-                    children: [
-                      GestureDetector(
-                        onTap: () {
-                          backToNextPaper();
-                        },
-                        child: SizedBox(
-                          width: 24,
-                          height: 24,
-                          child: Image.asset('assets/img/icon_back.webp'),
+                  Padding(
+                    padding: EdgeInsets.only(top: 42, left: 20, right: 20),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.max,
+                      children: [
+                        GestureDetector(
+                          onTap: () {
+                            backToNextPaper();
+                          },
+                          child: SizedBox(
+                            width: 24,
+                            height: 24,
+                            child: Image.asset('assets/img/icon_back.webp'),
+                          ),
                         ),
-                      ),
-                      SizedBox(
-                        width: 8,
-                      ),
-                      const Text("Anniversary",
-                          style: TextStyle(
-                            color: Color(0xFF1E293B),
-                            fontSize: 16,
-                          )),
-                      Spacer(),
-                    ],
+                        SizedBox(
+                          width: 8,
+                        ),
+                        const Text("Anniversary",
+                            style: TextStyle(
+                              color: Color(0xFF1E293B),
+                              fontSize: 16,
+                            )),
+                        Spacer(),
+                      ],
+                    ),
                   ),
-                ),
                 Padding(
                   padding: const EdgeInsets.only(top: 32, right: 20, left: 20),
                   child: Container(
@@ -214,11 +194,11 @@ class _WelcomeScreenState extends State<AddDateScreen> {
                             maxLines: 1,
                             maxLength: 100,
                             buildCounter: (
-                              BuildContext context, {
-                              required int currentLength,
-                              required bool isFocused,
-                              required int? maxLength,
-                            }) {
+                                BuildContext context, {
+                                  required int currentLength,
+                                  required bool isFocused,
+                                  required int? maxLength,
+                                }) {
                               return null;
                             },
                             style: const TextStyle(
@@ -303,7 +283,7 @@ class _WelcomeScreenState extends State<AddDateScreen> {
                 ),
                 Padding(
                   padding:
-                      const EdgeInsets.only(top: 24.0, left: 20, right: 20),
+                  const EdgeInsets.only(top: 24.0, left: 20, right: 20),
                   child: Row(
                     children: [
                       GestureDetector(
@@ -366,45 +346,6 @@ class _WelcomeScreenState extends State<AddDateScreen> {
                     ],
                   ),
                 ),
-                // Padding(
-                //   padding: const EdgeInsets.only(top: 32, right: 20, left: 20),
-                //   child: GestureDetector(
-                //     onTap: () {
-                //       _showBottomSheet();
-                //     },
-                //     child: Container(
-                //       child: Row(
-                //         children: [
-                //           SizedBox(
-                //             width: 32,
-                //             height: 32,
-                //             child: Image.asset('assets/img/icon_repeat.webp'),
-                //           ),
-                //           SizedBox(width: 12),
-                //           const Text(
-                //             'Repeat',
-                //             style: TextStyle(
-                //               fontSize: 14,
-                //               color: Color(0xFF999999),
-                //             ),
-                //           ),
-                //           Spacer(),
-                //           Text(
-                //             AppUtils.getOptionsData()[repeat],
-                //             style: const TextStyle(
-                //               fontSize: 14,
-                //               color: Color(0xFF1E293B),
-                //             ),
-                //           ),
-                //           const Icon(
-                //             Icons.keyboard_arrow_right,
-                //             color: Color(0xFF999999),
-                //           )
-                //         ],
-                //       ),
-                //     ),
-                //   ),
-                // ),
                 Padding(
                   padding: const EdgeInsets.only(top: 32, right: 20, left: 20),
                   child: Container(
@@ -536,9 +477,7 @@ class _WelcomeScreenState extends State<AddDateScreen> {
                   padding: const EdgeInsets.only(top: 16),
                   child: GestureDetector(
                     onTap: () {
-                      showAdNextPaper(AdWhere.SAVE, () {
                         saveData();
-                      });
                     },
                     child: Container(
                       width: 243,

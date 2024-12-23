@@ -64,33 +64,11 @@ class DetailPageScreen extends StatefulWidget {
 class _DetailPageScreenState extends State<DetailPageScreen> {
   late Event event;
   final ScreenshotController _screenshotController = ScreenshotController();
-  late ShowAdFun adManager;
-  final LoadingOverlay _loadingOverlay = LoadingOverlay();
 
   @override
   void initState() {
     super.initState();
     event = widget.event;
-    adManager = AppUtils.getMobUtils(context);
-  }
-
-  void showAdNextPaper(AdWhere adWhere, Function() nextJump) async {
-    if (!adManager.canShowAd(adWhere)) {
-      adManager.loadAd(adWhere);
-    }
-    setState(() {
-      _loadingOverlay.show(context);
-    });
-    AppUtils.showScanAd(context, adWhere, 5, () {
-      setState(() {
-        _loadingOverlay.hide();
-      });
-    }, () {
-      setState(() {
-        _loadingOverlay.hide();
-      });
-      nextJump();
-    });
   }
 
   void editFun() async {
@@ -108,10 +86,8 @@ class _DetailPageScreenState extends State<DetailPageScreen> {
   }
 
   void deleteFun() async {
-    showAdNextPaper(AdWhere.SAVE, () {
-      EventManager.deleteEvent(event.id);
-      Navigator.pop(context);
-    });
+    EventManager.deleteEvent(event.id);
+    Navigator.pop(context);
   }
 
   void showDeleteConfirmationDialog(BuildContext context) {
@@ -171,9 +147,7 @@ class _DetailPageScreenState extends State<DetailPageScreen> {
   }
 
   void backToNextPaper() async {
-    showAdNextPaper(AdWhere.BACKINT, () {
-      Navigator.pop(context);
-    });
+    Navigator.pop(context);
   }
 
   void shareFun() async {
@@ -239,9 +213,7 @@ class _DetailPageScreenState extends State<DetailPageScreen> {
                           const SizedBox(width: 20),
                           GestureDetector(
                             onTap: () {
-                              showAdNextPaper(AdWhere.SAVE, () {
-                                editFun();
-                              });
+                              editFun();
                             },
                             child: SizedBox(
                               width: 28,
@@ -313,14 +285,12 @@ class _DetailPageScreenState extends State<DetailPageScreen> {
                                     children: [
                                       GestureDetector(
                                         onTap: () {
-                                          showAdNextPaper(AdWhere.SAVE, () {
-                                            Navigator.push(
-                                                context,
-                                                MaterialPageRoute(
-                                                    builder: (context) =>
-                                                        AddFeelPage(
-                                                            event: event)));
-                                          });
+                                          Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      AddFeelPage(
+                                                          event: event)));
                                         },
                                         child: Container(
                                           height: 40,
@@ -360,14 +330,12 @@ class _DetailPageScreenState extends State<DetailPageScreen> {
                                       ),
                                       GestureDetector(
                                         onTap: () {
-                                          showAdNextPaper(AdWhere.SAVE, () {
                                             Navigator.push(
                                                 context,
                                                 MaterialPageRoute(
                                                     builder: (context) =>
                                                         FeelListPage(
                                                             event: event)));
-                                          });
                                         },
                                         child: Container(
                                           height: 40,
